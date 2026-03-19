@@ -1,6 +1,7 @@
 package main;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class MainMenu {
@@ -55,6 +56,7 @@ public class MainMenu {
                 performBalanceCheck();
                 break;
             case 4:
+                viewTransactionHistory();
                 break;
             case 5:
                 break;
@@ -110,6 +112,14 @@ public class MainMenu {
         BankAccount newBankAccount = new BankAccount(name);
         userAccounts.put(name, newBankAccount);
         System.out.println("Account " + name + "Successfully created!");
+    }
+
+    public void viewTransactionHistory() {
+        LinkedList<String> list = userAccount.getHistory();
+        System.out.println("Here is your transaction history:");
+        for(int i = 0; i < list.size(); i++) {
+            System.out.println(i + ": " + list.get(i));
+        }
     }
 
     public void run() {

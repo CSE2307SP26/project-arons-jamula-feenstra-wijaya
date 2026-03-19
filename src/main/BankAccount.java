@@ -28,14 +28,6 @@ public class BankAccount {
         }
     }
 
-    public void checkBalance() {
-        if (this.balance  >= 0) {
-            System.out.println("This account has a balance of $" + this.balance);
-        } else if (this.balance < 0) {
-            System.out.println("This account has a balance of -$" + this.balance);
-        }
-    }
-
     public double getBalance() {
         return this.balance;
     }

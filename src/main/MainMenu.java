@@ -50,6 +50,7 @@ public class MainMenu {
                 performDeposit();
                 break;
             case 2:
+                performWithdraw();
                 break;
             case 3:
                 performBalanceCheck();
@@ -74,6 +75,15 @@ public class MainMenu {
             depositAmount = keyboardInput.nextInt();
         }
         userAccount.deposit(depositAmount);
+    }
+
+    public void performWithdraw() {
+        double withdrawAmount = -1;
+        while (withdrawAmount <= 0) {
+            System.out.print("How much would you like to withdraw: ");
+            withdrawAmount = keyboardInput.nextInt();
+        }
+        userAccount.withdraw(withdrawAmount);
     }
 
     public void performBalanceCheck() {

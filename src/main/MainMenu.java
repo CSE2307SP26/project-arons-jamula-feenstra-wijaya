@@ -5,8 +5,8 @@ import java.util.Scanner;
 
 public class MainMenu {
 
-    private static final int EXIT_SELECTION = 5;
-	private static final int MAX_SELECTION = 5;
+    private static final int EXIT_SELECTION = 0;
+	private static final int MAX_SELECTION = 7;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
@@ -25,16 +25,19 @@ public class MainMenu {
         System.out.println("You are currently on account: " + userAccount.getName() + "\n");
         
         System.out.println("1. Make a deposit");
-        System.out.println("2. Check account balance");
-        System.out.println("3. Switch accounts");
-        System.out.println("4. Create a new account");
-        System.out.println("5. Exit the app");
+        System.out.println("2. Withdraw funds");
+        System.out.println("3. Check account balance");
+        System.out.println("4. View transaction history");
+        System.out.println("5. Transfer funds between accounts");
+        System.out.println("6. Create a new account");
+        System.out.println("7. Switch accounts");
+        System.out.println("0. Exit the app");
 
     }
 
     public int getUserSelection(int max) {
         int selection = -1;
-        while(selection < 1 || selection > max) {
+        while(selection < 0 || selection > max) {
             System.out.print("Please make a selection: ");
             selection = keyboardInput.nextInt();
         }
@@ -47,13 +50,19 @@ public class MainMenu {
                 performDeposit();
                 break;
             case 2:
-                performBalanceCheck();
                 break;
             case 3:
-                performSwitchAccount();
+                performBalanceCheck();
                 break;
             case 4:
+                break;
+            case 5:
+                break;
+            case 6:
                 performCreateNewAccount();
+                break;
+            case 7:
+                performSwitchAccount();
                 break;
         }
     }
@@ -76,12 +85,15 @@ public class MainMenu {
         for (String name : userAccounts.keySet()) {
             System.out.println(name);
         }
-        System.out.print("Please enter the name of the account you'd like to switch to: ");
+        System.out.print("Please enter the name of the account you'd like to switch to (Type 'cancel' to cancel): ");
         String choice = keyboardInput.next();
-        while(!userAccounts.containsKey(choice)) {
+        while(!userAccounts.containsKey(choice) && !choice.equals("cancel")) {
             System.out.println("Account with that name does not exist.");
             System.out.print("Please enter the name of the account you'd like to switch to: ");
             choice = keyboardInput.next();
+        }
+        if(choice.equals("cancel")) {
+            return;
         }
         this.userAccount = userAccounts.get(choice);
     }

@@ -87,7 +87,11 @@ public class MainMenu {
     }
 
     public void performBalanceCheck() {
-        userAccount.checkBalance();
+        if (userAccount.getBalance()  >= 0) {
+            System.out.println("This account has a balance of $" + userAccount.getBalance());
+        } else if (userAccount.getBalance() < 0) {
+            System.out.println("This account has a balance of -$" + userAccount.getBalance());
+        }
     }
 
     public void performSwitchAccount() {

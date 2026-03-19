@@ -26,9 +26,6 @@ public class BankAccountTest {
             //do nothing, test passes
         }
     }
-    
-    // because checkBalance() is essentially a getter method as it just 
-    // prints the balance, I am not sure a test is appropriate
 
     @Test
     public void testWithdraw() {

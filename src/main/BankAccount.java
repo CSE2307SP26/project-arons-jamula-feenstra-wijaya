@@ -28,6 +28,17 @@ public class BankAccount {
         }
     }
 
+    public void transfer(BankAccount otherBankAccount, int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException();
+        } else if (amount > this.balance) {
+            throw new IllegalArgumentException();
+        } else {
+            this.withdraw(amount);
+            otherBankAccount.deposit(amount);
+        }
+    }
+
     public double getBalance() {
         return this.balance;
     }

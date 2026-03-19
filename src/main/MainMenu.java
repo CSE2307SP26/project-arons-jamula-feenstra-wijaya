@@ -50,7 +50,7 @@ public class MainMenu {
                 performDeposit();
                 break;
             case 2:
-                performWithdrawl();
+                performWithdraw();
                 break;
             case 3:
                 performBalanceCheck();

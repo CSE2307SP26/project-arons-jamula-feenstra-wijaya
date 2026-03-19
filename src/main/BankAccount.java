@@ -3,9 +3,11 @@ package main;
 public class BankAccount {
 
     private double balance;
+    private String name;
 
-    public BankAccount() {
+    public BankAccount(String name) {
         this.balance = 0;
+        this.name = name;
     }
 
     public void deposit(double amount) {
@@ -26,5 +28,9 @@ public class BankAccount {
 
     public double getBalance() {
         return this.balance;
+    }
+
+    public String getName() {
+        return this.name;
     }
 }

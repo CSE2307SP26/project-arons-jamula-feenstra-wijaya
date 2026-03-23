@@ -58,6 +58,7 @@ public class MainMenu {
             case 4:
                 break;
             case 5:
+                performTransfer();
                 break;
             case 6:
                 performCreateNewAccount();
@@ -124,6 +125,24 @@ public class MainMenu {
         BankAccount newBankAccount = new BankAccount(name);
         userAccounts.put(name, newBankAccount);
         System.out.println("Account " + name + "Successfully created!");
+    }
+
+    public void performTransfer() {
+        System.out.println("Please enter the name of the account you'd like to transfer money to:");
+        String transferAccount = keyboardInput.next();
+        while(!userAccounts.containsKey(transferAccount)) {
+            System.out.println("Invalid name.");
+            System.out.println("Please enter the name of the account you'd like to transfer money to:");
+            transferAccount = keyboardInput.next();
+        }
+        System.out.println("How much would you like to transfer?");
+        int transferAmount = keyboardInput.nextInt();
+        while(transferAmount <= 0 || transferAmount > userAccount.getBalance()) {
+            System.out.println("Invalid amount.");
+            System.out.println("How much would you like to transfer?");
+            transferAmount = keyboardInput.nextInt();
+        }
+        userAccount.transfer(userAccounts.get(transferAccount), transferAmount);
     }
 
     public void run() {

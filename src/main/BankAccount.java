@@ -40,7 +40,7 @@ public class BankAccount {
     }
 
     public void applyInterest(double interestRate) {
-        if (interestRate < 0 || this.balance < 0) {
+        if (interestRate <= 0 || this.balance < 0) {
             throw new IllegalArgumentException();
         } else {
             this.balance *= (1 + interestRate);

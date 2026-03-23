@@ -3,33 +3,30 @@ package main;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class MainMenu {
+public class AdminMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 7;
+	private static final int MAX_SELECTION = 2;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
     
     private HashMap<String, BankAccount> userAccounts; // HashMap that stores all of the user's bankaccounts. Each BankAccount can be retrieved using its name.
 
-    public MainMenu(HashMap<String, BankAccount> sharedAccountsMap) {
+    public AdminMenu(HashMap<String, BankAccount> sharedAccountsMap) {
         this.userAccounts = sharedAccountsMap;
         this.userAccount = userAccounts.get("default");
         this.keyboardInput = new Scanner(System.in);
     }
 
     public void displayOptions() {
-        System.out.println("\nWelcome to the 2307 Bank App!");
+        System.out.println("\nWelcome to the 2307 Bank App! --- ADMIN ---");
         System.out.println("You are currently on account: " + userAccount.getName() + "\n");
         
-        System.out.println("1. Make a deposit");
-        System.out.println("2. Withdraw funds");
-        System.out.println("3. Check account balance");
-        System.out.println("4. View transaction history");
-        System.out.println("5. Transfer funds between accounts");
-        System.out.println("6. Create a new account");
-        System.out.println("7. Switch accounts");
+        System.out.println("1. Collect fees");
+        System.out.println("2. Apply interest");
+        System.out.println("3. Create a new account");
+        System.out.println("4. Switch accounts");
         System.out.println("0. Exit the app");
 
     }
@@ -46,51 +43,17 @@ public class MainMenu {
     public void processInput(int selection) {
         switch (selection) {
             case 1:
-                performDeposit();
+                //performCollectFees();
                 break;
             case 2:
-                performWithdraw();
+                performApplyInterest();
                 break;
             case 3:
-                performBalanceCheck();
-                break;
-            case 4:
-                break;
-            case 5:
-                performTransfer();
-                break;
-            case 6:
                 performCreateNewAccount();
                 break;
-            case 7:
+            case 4:
                 performSwitchAccount();
                 break;
-        }
-    }
-
-    public void performDeposit() {
-        double depositAmount = -1;
-        while(depositAmount < 0) {
-            System.out.print("How much would you like to deposit: ");
-            depositAmount = keyboardInput.nextInt();
-        }
-        userAccount.deposit(depositAmount);
-    }
-
-    public void performWithdraw() {
-        double withdrawAmount = -1;
-        while (withdrawAmount <= 0) {
-            System.out.print("How much would you like to withdraw: ");
-            withdrawAmount = keyboardInput.nextInt();
-        }
-        userAccount.withdraw(withdrawAmount);
-    }
-
-    public void performBalanceCheck() {
-        if (userAccount.getBalance()  >= 0) {
-            System.out.println("This account has a balance of $" + userAccount.getBalance());
-        } else if (userAccount.getBalance() < 0) {
-            System.out.println("This account has a balance of -$" + userAccount.getBalance());
         }
     }
 
@@ -125,23 +88,14 @@ public class MainMenu {
         userAccounts.put(name, newBankAccount);
         System.out.println("Account " + name + "Successfully created!");
     }
-
-    public void performTransfer() {
-        System.out.println("Please enter the name of the account you'd like to transfer money to:");
-        String transferAccount = keyboardInput.next();
-        while(!userAccounts.containsKey(transferAccount)) {
-            System.out.println("Invalid name.");
-            System.out.println("Please enter the name of the account you'd like to transfer money to:");
-            transferAccount = keyboardInput.next();
+    
+    public void performApplyInterest() {
+        double interestRate = -1;
+        while(interestRate < 0) {
+            System.out.print("What interest rate would you like to apply (in %): ");
+            interestRate = 0.01 * keyboardInput.nextInt();
         }
-        System.out.println("How much would you like to transfer?");
-        int transferAmount = keyboardInput.nextInt();
-        while(transferAmount <= 0 || transferAmount > userAccount.getBalance()) {
-            System.out.println("Invalid amount.");
-            System.out.println("How much would you like to transfer?");
-            transferAmount = keyboardInput.nextInt();
-        }
-        userAccount.transfer(userAccounts.get(transferAccount), transferAmount);
+        userAccount.applyInterest(interestRate);
     }
 
     public void run() {

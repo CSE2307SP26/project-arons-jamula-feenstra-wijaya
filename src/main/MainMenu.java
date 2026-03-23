@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 7;
+	private static final int MAX_SELECTION = 8;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
@@ -31,6 +31,7 @@ public class MainMenu {
         System.out.println("5. Transfer funds between accounts");
         System.out.println("6. Create a new account");
         System.out.println("7. Switch accounts");
+        System.out.println("8. Close an account");
         System.out.println("0. Exit the app");
 
     }
@@ -65,6 +66,9 @@ public class MainMenu {
                 break;
             case 7:
                 performSwitchAccount();
+                break;
+            case 8:
+                performCloseAccount();
                 break;
         }
     }
@@ -143,6 +147,33 @@ public class MainMenu {
             transferAmount = keyboardInput.nextInt();
         }
         userAccount.transfer(userAccounts.get(transferAccount), transferAmount);
+    }
+
+    public void performCloseAccount() {
+        System.out.println("Currently on account: " + userAccount.getName() + ". Would you like to close this account? (Type 'yes' to confirm, 'no' to cancel)");
+        String choice = keyboardInput.next();
+        while(!choice.equals("yes") && !choice.equals("no")) {
+            System.out.println("Invalid input. Please type 'yes' to confirm, 'no' to cancel.");
+            choice = keyboardInput.next();
+        }
+        if(choice.equals("no")) {
+            return;
+        }
+    
+        if (userAccount.getBalance() != 0) {
+            System.out.println("Cannot close account. Balance must be 0.");
+            return;
+        }
+    
+        if (userAccounts.size() == 1) {
+            System.out.println("Cannot delete the only account.");
+            return;
+        }
+    
+        String nameToRemove = userAccount.getName();
+        userAccounts.remove(nameToRemove);
+        userAccount = userAccounts.values().iterator().next();
+        System.out.println("Account '" + nameToRemove + "' successfully closed!");
     }
 
     public void run() {

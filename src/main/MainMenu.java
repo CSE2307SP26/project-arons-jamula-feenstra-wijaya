@@ -51,6 +51,7 @@ public class MainMenu {
                 performDeposit();
                 break;
             case 2:
+                performWithdraw();
                 break;
             case 3:
                 performBalanceCheck();
@@ -59,6 +60,7 @@ public class MainMenu {
                 viewTransactionHistory();
                 break;
             case 5:
+                performTransfer();
                 break;
             case 6:
                 performCreateNewAccount();
@@ -76,6 +78,15 @@ public class MainMenu {
             depositAmount = keyboardInput.nextInt();
         }
         userAccount.deposit(depositAmount);
+    }
+
+    public void performWithdraw() {
+        double withdrawAmount = -1;
+        while (withdrawAmount <= 0) {
+            System.out.print("How much would you like to withdraw: ");
+            withdrawAmount = keyboardInput.nextInt();
+        }
+        userAccount.withdraw(withdrawAmount);
     }
 
     public void performBalanceCheck() {
@@ -126,6 +137,24 @@ public class MainMenu {
         }
     }
 
+    public void performTransfer() {
+        System.out.println("Please enter the name of the account you'd like to transfer money to:");
+        String transferAccount = keyboardInput.next();
+        while(!userAccounts.containsKey(transferAccount)) {
+            System.out.println("Invalid name.");
+            System.out.println("Please enter the name of the account you'd like to transfer money to:");
+            transferAccount = keyboardInput.next();
+        }
+        System.out.println("How much would you like to transfer?");
+        int transferAmount = keyboardInput.nextInt();
+        while(transferAmount <= 0 || transferAmount > userAccount.getBalance()) {
+            System.out.println("Invalid amount.");
+            System.out.println("How much would you like to transfer?");
+            transferAmount = keyboardInput.nextInt();
+        }
+        userAccount.transfer(userAccounts.get(transferAccount), transferAmount);
+    }
+
     public void run() {
         int selection = -1;
         while(selection != EXIT_SELECTION) {
@@ -139,5 +168,4 @@ public class MainMenu {
         MainMenu bankApp = new MainMenu();
         bankApp.run();
     }
-
 }

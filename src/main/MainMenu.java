@@ -13,10 +13,9 @@ public class MainMenu {
     
     private HashMap<String, BankAccount> userAccounts; // HashMap that stores all of the user's bankaccounts. Each BankAccount can be retrieved using its name.
 
-    public MainMenu() {
-        this.userAccount = new BankAccount("default");
-        this.userAccounts = new HashMap<>();
-        userAccounts.put("default", this.userAccount);
+    public MainMenu(HashMap<String, BankAccount> sharedAccountsMap) {
+        this.userAccounts = sharedAccountsMap;
+        this.userAccount = userAccounts.get("default");
         this.keyboardInput = new Scanner(System.in);
     }
 
@@ -183,11 +182,6 @@ public class MainMenu {
             selection = getUserSelection(MAX_SELECTION);
             processInput(selection);
         }
+        keyboardInput.close();
     }
-
-    public static void main(String[] args) {
-        MainMenu bankApp = new MainMenu();
-        bankApp.run();
-    }
-
 }

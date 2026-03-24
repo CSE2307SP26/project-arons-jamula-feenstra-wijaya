@@ -192,6 +192,5 @@ public class MainMenu {
             selection = getUserSelection(MAX_SELECTION);
             processInput(selection);
         }
-        keyboardInput.close();
     }
 }

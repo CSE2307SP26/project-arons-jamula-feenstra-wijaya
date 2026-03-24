@@ -1,3 +1,7 @@
 #!/bin/bash
+echo "Compiling..."
+mkdir -p bin
+javac -d bin src/main/*.java
 
-#put commands here to compile and run your app from command line
+echo "Running..."
+java -cp bin main.BankApplication

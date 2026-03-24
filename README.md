@@ -24,3 +24,6 @@
 ## Is there anything that you implemented but doesn't currently work?
 
 ## What commands are needed to compile and run your code from the command line?
+
+1. cd into project-arons-jamula-feenstra-wijaya
+2. ./runApp.sh

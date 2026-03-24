@@ -105,6 +105,5 @@ public class AdminMenu {
             selection = getUserSelection(MAX_SELECTION);
             processInput(selection);
         }
-        keyboardInput.close();
     }
 }

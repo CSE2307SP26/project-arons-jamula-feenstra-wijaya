@@ -1,6 +1,7 @@
 package main;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class MainMenu {
@@ -56,6 +57,7 @@ public class MainMenu {
                 performBalanceCheck();
                 break;
             case 4:
+                viewTransactionHistory();
                 break;
             case 5:
                 performTransfer();
@@ -130,6 +132,14 @@ public class MainMenu {
         System.out.println("Account " + name + "Successfully created!");
     }
 
+    public void viewTransactionHistory() {
+        LinkedList<String> list = userAccount.getHistory();
+        System.out.println("Here is your transaction history:");
+        for(int i = 0; i < list.size(); i++) {
+            System.out.println((i+1) + ". " + list.get(i));
+        }
+    }
+
     public void performTransfer() {
         System.out.println("Please enter the name of the account you'd like to transfer money to:");
         String transferAccount = keyboardInput.next();
@@ -182,6 +192,5 @@ public class MainMenu {
             selection = getUserSelection(MAX_SELECTION);
             processInput(selection);
         }
-        keyboardInput.close();
     }
 }

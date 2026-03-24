@@ -133,7 +133,7 @@ public class MainMenu {
         LinkedList<String> list = userAccount.getHistory();
         System.out.println("Here is your transaction history:");
         for(int i = 0; i < list.size(); i++) {
-            System.out.println(i + ": " + list.get(i));
+            System.out.println((i+1) + ". " + list.get(i));
         }
     }
 

@@ -59,8 +59,20 @@ public class BankAccount {
         }
     }
 
+    public void applyInterest(double interestRate) {
+        if (interestRate <= 0 || this.balance < 0) {
+            throw new IllegalArgumentException();
+        } else {
+            this.balance *= (1 + interestRate);
+        }
+    }
+
     public double getBalance() {
         return this.balance;
+    }
+
+    public void setBalance(double newBalance) {
+        this.balance = newBalance; //only used for test cases, allows for negative values
     }
 
     public String getName() {

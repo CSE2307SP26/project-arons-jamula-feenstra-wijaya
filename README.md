@@ -25,5 +25,5 @@
 
 ## What commands are needed to compile and run your code from the command line?
 
-cd into project-arons-jamula-feenstra-wijaya
-./runApp.sh
+1. cd into project-arons-jamula-feenstra-wijaya
+2. ./runApp.sh

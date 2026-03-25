@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class AdminMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 2;
+	private static final int MAX_SELECTION = 4;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;

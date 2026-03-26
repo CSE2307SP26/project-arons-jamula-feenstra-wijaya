@@ -1,4 +1,4 @@
-# project26
+# Banking Application Project
 
 ## Team Members:
 

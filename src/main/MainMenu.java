@@ -169,7 +169,7 @@ public class MainMenu {
             return;
         }
     
-        if (userAccount.getBalance() != 0) {
+        if (Math.abs(userAccount.getBalance()) > 0.001) {
             System.out.println("Cannot close account. Balance must be 0.");
             return;
         }

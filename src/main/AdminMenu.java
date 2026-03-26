@@ -93,7 +93,7 @@ public void performCollectFees() {
     double feeAmount = -1;
     while(feeAmount <= 0) {
         System.out.print("How much would you like to collect in fees: ");
-        feeAmount = keyboardInput.nextInt();
+        feeAmount = keyboardInput.nextDouble();
     }
     userAccount.collectFees(feeAmount);
 }
@@ -102,7 +102,7 @@ public void performCollectFees() {
         double interestRate = -1;
         while(interestRate < 0) {
             System.out.print("What interest rate would you like to apply (in %): ");
-            interestRate = 0.01 * keyboardInput.nextInt();
+            interestRate = 0.01 * keyboardInput.nextDouble();
         }
         userAccount.applyInterest(interestRate);
     }

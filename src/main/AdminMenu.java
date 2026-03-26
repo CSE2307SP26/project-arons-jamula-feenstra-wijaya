@@ -43,7 +43,7 @@ public class AdminMenu {
     public void processInput(int selection) {
         switch (selection) {
             case 1:
-                //performCollectFees();
+                performCollectFees();
                 break;
             case 2:
                 performApplyInterest();
@@ -89,6 +89,15 @@ public class AdminMenu {
         System.out.println("Account " + name + "Successfully created!");
     }
     
+public void performCollectFees() {
+    double feeAmount = -1;
+    while(feeAmount <= 0) {
+        System.out.print("How much would you like to collect in fees: ");
+        feeAmount = keyboardInput.nextInt();
+    }
+    userAccount.collectFees(feeAmount);
+}
+
     public void performApplyInterest() {
         double interestRate = -1;
         while(interestRate < 0) {

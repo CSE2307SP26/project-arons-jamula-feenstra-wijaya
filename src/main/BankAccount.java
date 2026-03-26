@@ -46,7 +46,7 @@ public class BankAccount {
         }
     }
 
-    public void transfer(BankAccount otherBankAccount, int amount) {
+    public void transfer(BankAccount otherBankAccount, double amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException();
         } else if (amount > this.balance) {
@@ -59,11 +59,34 @@ public class BankAccount {
         }
     }
 
-    public void applyInterest(double interestRate) {
+    public void collectFees(double amount) {
+        collectFees(amount, true);
+    }
+
+    public void collectFees(double amount, boolean recordTransaction) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException();                
+        } else {
+            this.balance -= amount;
+            if(recordTransaction) {
+                this.transactionHistory.add("Fee Collected: $" + amount);
+            }
+        }
+    }
+   
+    public void applyInterest(double amount) {
+        applyInterest(amount, true);
+    }
+
+    public void applyInterest(double interestRate, boolean recordTransaction) {
         if (interestRate <= 0 || this.balance < 0) {
             throw new IllegalArgumentException();
         } else {
+            double oldBalance = this.balance
             this.balance *= (1 + interestRate);
+             if(recordTransaction) {
+                this.transactionHistory.add("Interest Applied: $" + (oldBalance * (1 + interestRate) - oldBalance));
+            }
         }
     }
 

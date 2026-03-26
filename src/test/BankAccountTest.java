@@ -96,6 +96,36 @@ public class BankAccountTest {
     }
 
     @Test
+    public void testCollectFees() {
+        BankAccount testAccount = new BankAccount("test");
+        testAccount.setBalance(100);
+        testAccount.collectFees(20);
+        assertEquals(80, testAccount.getBalance(), 0.01);
+
+    }
+
+    @Test
+    public void testCollectFeesOverdrawn() {
+        BankAccount testAccount = new BankAccount("test");
+        testAccount.setBalance(20);
+        testAccount.collectFees(30);
+        assertEquals(-10, testAccount.getBalance(), 0.01);
+
+    }
+
+    @Test
+    public void testCollectFeesFail() {
+        BankAccount testAccount = new BankAccount("test");
+        testAccount.setBalance(20);
+        try {
+            testAccount.collectFees(-20);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //do nothing, test passes
+        }
+    }
+
+    @Test
     public void testApplyInterest() {
         BankAccount testAccount = new BankAccount("test");
         testAccount.setBalance(50);

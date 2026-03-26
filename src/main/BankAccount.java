@@ -82,7 +82,7 @@ public class BankAccount {
         if (interestRate <= 0 || this.balance < 0) {
             throw new IllegalArgumentException();
         } else {
-            double oldBalance = this.balance
+            double oldBalance = this.balance;
             this.balance *= (1 + interestRate);
              if(recordTransaction) {
                 this.transactionHistory.add("Interest Applied: $" + (oldBalance * (1 + interestRate) - oldBalance));

@@ -149,7 +149,7 @@ public class MainMenu {
             transferAccount = keyboardInput.next();
         }
         System.out.println("How much would you like to transfer?");
-        double transferAmount = keyboardInput.nextInt();
+        double transferAmount = keyboardInput.nextDouble();
         while(transferAmount <= 0 || transferAmount > userAccount.getBalance()) {
             System.out.println("Invalid amount.");
             System.out.println("How much would you like to transfer?");

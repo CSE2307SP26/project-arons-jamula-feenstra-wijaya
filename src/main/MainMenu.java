@@ -94,9 +94,9 @@ public class MainMenu {
 
     public void performBalanceCheck() {
         if (userAccount.getBalance()  >= 0) {
-            System.out.println("This account has a balance of $" + userAccount.getBalance());
+            System.out.printf("This account has a balance of $%.2f%n", userAccount.getBalance());
         } else if (userAccount.getBalance() < 0) {
-            System.out.println("This account has a balance of -$" + Math.abs(userAccount.getBalance()));
+            System.out.printf("This account has a balance of -$%.2f%n", Math.abs(userAccount.getBalance()));
         }
     }
 

@@ -10,10 +10,10 @@ public class AdminMenu {
 
     private Scanner keyboardInput;
     
-    private HashMap<String, BankAccount> userAccounts; // HashMap that stores all of the user's bankaccounts. Each BankAccount can be retrieved using its name.
+    private HashMap<String, User> userDatabase; // HashMap that stores all users and their accounts
 
-    public AdminMenu(HashMap<String, BankAccount> sharedAccountsMap) {
-        this.userAccounts = sharedAccountsMap;
+    public AdminMenu(HashMap<String, User> userDatabase) {
+        this.userDatabase = userDatabase;
         this.keyboardInput = new Scanner(System.in);
     }
 
@@ -63,7 +63,10 @@ public class AdminMenu {
     ---------------------------------------------------------*/
 
     public void collectFees() {
-        BankAccount account = promptForAccount("collect fees from");
+        User user = promptForUser();
+        if(user == null) return;
+
+        BankAccount account = promptForAccountFromUser(user, "collect fees from");
         if(account == null) return;
 
         double amount = getPositiveDouble("Enter fee amount to collect: ");
@@ -78,7 +81,10 @@ public class AdminMenu {
     }
 
     public void applyInterest() {
-        BankAccount account = promptForAccount("apply interest to");
+        User user = promptForUser();
+        if(user == null) return;
+
+        BankAccount account = promptForAccountFromUser(user, "apply interest to");
         if(account == null) return;
 
         double interestRate = getPositiveDouble("Enter interest rate to apply (in %): ");
@@ -88,13 +94,23 @@ public class AdminMenu {
     }
 
     public void listAccounts() {
-        System.out.println("List of accounts and their balances:");
-        for(String accountName : userAccounts.keySet()) {
-            BankAccount account = userAccounts.get(accountName);
-            if(account.getBalance() < 0) {
-                System.out.println("- " + account.getName() + ": -$" + Math.abs(account.getBalance()));
-            } else {
-                System.out.println("- " + account.getName() + ": $" + account.getBalance());
+        if(userDatabase.isEmpty()) {
+            System.out.println("No users registered yet.");
+            return;
+        }
+        System.out.println("\n=== All Users and Their Accounts ===");
+        for(String username : userDatabase.keySet()) {
+            User user = userDatabase.get(username);
+            System.out.println("\nUser: " + username);
+            HashMap<String, BankAccount> accounts = user.getAllAccounts();
+            for(String accountName : accounts.keySet()) {
+                BankAccount account = accounts.get(accountName);
+                double balance = account.getBalance();
+                if(balance < 0) {
+                    System.out.println("  - " + account.getName() + ": -$" + String.format("%.2f", Math.abs(balance)));
+                } else {
+                    System.out.println("  - " + account.getName() + ": $" + String.format("%.2f", balance));
+                }
             }
         }
     }
@@ -121,26 +137,45 @@ public class AdminMenu {
         return value;
     }
 
-    private BankAccount promptForAccount(String actionName) {
-    String accountName;
-    do {
-        System.out.print("Enter account name to " + actionName + " (or type 'cancel' to cancel): ");
-        accountName = keyboardInput.nextLine();
+    private User promptForUser() {
+        String username;
+        do {
+            System.out.print("Enter username (or type 'cancel' to cancel): ");
+            username = keyboardInput.nextLine().trim();
 
-        if(accountName.equalsIgnoreCase("cancel")) {
-            System.out.println(actionName + " cancelled.");
-            return null;
-        }
+            if(username.equalsIgnoreCase("cancel")) {
+                System.out.println("Cancelled.");
+                return null;
+            }
 
-        if(!userAccounts.containsKey(accountName)) {
-            System.out.println("Account not found. Please try again.");
-        }
+            if(!userDatabase.containsKey(username)) {
+                System.out.println("User not found. Please try again.");
+            }
 
-    } while (!userAccounts.containsKey(accountName));
+        } while (!userDatabase.containsKey(username));
+        return userDatabase.get(username);
+    }
 
-    return userAccounts.get(accountName);
-}
-    
+    private BankAccount promptForAccountFromUser(User user, String actionName) {
+        HashMap<String, BankAccount> accounts = user.getAllAccounts();
+        String accountName;
+        do {
+            System.out.print("Enter account name to " + actionName + " (or type 'cancel' to cancel): ");
+            accountName = keyboardInput.nextLine().trim();
+
+            if(accountName.equalsIgnoreCase("cancel")) {
+                System.out.println(actionName + " cancelled.");
+                return null;
+            }
+
+            if(!accounts.containsKey(accountName)) {
+                System.out.println("Account not found. Try again.");
+            }
+
+        } while (!accounts.containsKey(accountName));
+        BankAccount account = accounts.get(accountName);
+        return account;
+    }
 
     /*--------------------------------------------------------
                             Main Loop

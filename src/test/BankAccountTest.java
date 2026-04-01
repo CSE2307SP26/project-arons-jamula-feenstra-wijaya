@@ -164,8 +164,8 @@ public class BankAccountTest {
         testAccount.withdraw(30);
         testAccount.deposit(50);
         assertEquals(3, testAccount.getHistory().size());
-        assertEquals("Deposit: $100.0", testAccount.getHistory().get(0));
-        assertEquals("Withdraw: $30.0", testAccount.getHistory().get(1));
-        assertEquals("Deposit: $50.0", testAccount.getHistory().get(2));
+        assertEquals("Deposit: $100.00", testAccount.getHistory().get(0));
+        assertEquals("Withdraw: $30.00", testAccount.getHistory().get(1));
+        assertEquals("Deposit: $50.00", testAccount.getHistory().get(2));
     }
 }

@@ -78,7 +78,7 @@ public class MainMenu {
         double depositAmount = -1;
         while(depositAmount < 0) {
             System.out.print("How much would you like to deposit: ");
-            depositAmount = keyboardInput.nextInt();
+            depositAmount = keyboardInput.nextDouble();
         }
         userAccount.deposit(depositAmount);
     }
@@ -87,16 +87,16 @@ public class MainMenu {
         double withdrawAmount = -1;
         while (withdrawAmount <= 0) {
             System.out.print("How much would you like to withdraw: ");
-            withdrawAmount = keyboardInput.nextInt();
+            withdrawAmount = keyboardInput.nextDouble();
         }
         userAccount.withdraw(withdrawAmount);
     }
 
     public void performBalanceCheck() {
         if (userAccount.getBalance()  >= 0) {
-            System.out.println("This account has a balance of $" + userAccount.getBalance());
+            System.out.printf("This account has a balance of $%.2f%n", userAccount.getBalance());
         } else if (userAccount.getBalance() < 0) {
-            System.out.println("This account has a balance of -$" + userAccount.getBalance());
+            System.out.printf("This account has a balance of -$%.2f%n", Math.abs(userAccount.getBalance()));
         }
     }
 
@@ -149,11 +149,11 @@ public class MainMenu {
             transferAccount = keyboardInput.next();
         }
         System.out.println("How much would you like to transfer?");
-        int transferAmount = keyboardInput.nextInt();
+        double transferAmount = keyboardInput.nextDouble();
         while(transferAmount <= 0 || transferAmount > userAccount.getBalance()) {
             System.out.println("Invalid amount.");
             System.out.println("How much would you like to transfer?");
-            transferAmount = keyboardInput.nextInt();
+            transferAmount = keyboardInput.nextDouble();
         }
         userAccount.transfer(userAccounts.get(transferAccount), transferAmount);
     }
@@ -169,7 +169,7 @@ public class MainMenu {
             return;
         }
     
-        if (userAccount.getBalance() != 0) {
+        if (Math.abs(userAccount.getBalance()) > 0.001) {
             System.out.println("Cannot close account. Balance must be 0.");
             return;
         }

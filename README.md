@@ -22,7 +22,7 @@
 ## What user stories do you intend to complete next iteration?
 1. Logins for admin and users. (Andrew)
 2. A user should be able to create different types of accounts (checking or savings). (Natalia)
-3. A user should be able to save accounts and reload them later. (Andrew)
+3. Allow a user to change password. (Andrew)
 4. A user would be able transfer to another user's account. (Clifford)
 5. An admin should be able to edit transactions. (Clifford)
 6. Implement loan. (Harrison)

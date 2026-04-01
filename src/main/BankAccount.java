@@ -34,8 +34,7 @@ public class BankAccount {
     }
 
     public void withdraw(double amount, boolean recordTransaction) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException();
+        if (amount <= 0) {            
         } else if (amount > this.balance) {
             throw new IllegalArgumentException();
         } else {

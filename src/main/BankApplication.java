@@ -28,6 +28,7 @@ public class BankApplication {
         while(selection < 0 || selection > max) {
             System.out.print("Please make a selection: ");
             selection = keyboardInput.nextInt();
+            keyboardInput.nextLine(); // clear buffer
         }
         return selection;
     }

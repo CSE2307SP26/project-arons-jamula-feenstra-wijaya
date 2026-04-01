@@ -40,7 +40,14 @@ public class MainMenu {
         int selection = -1;
         while(selection < 0 || selection > max) {
             System.out.print("Please make a selection: ");
+            while (!keyboardInput.hasNextInt()) {
+                System.out.println("Invalid input.");
+                keyboardInput.next();
+            }
             selection = keyboardInput.nextInt();
+            if(selection < 0 || selection > max) {
+                System.out.println("Invalid selection. Try again.");
+            }
             keyboardInput.nextLine(); // clear buffer
         }
         return selection;
@@ -80,12 +87,12 @@ public class MainMenu {
     ---------------------------------------------------------*/
 
     private void deposit() {
-        int amount = getPositiveInt("Enter deposit amount: ");
+        double amount = getPositiveDouble("Enter deposit amount: ");
         userAccount.deposit(amount);
     }
 
     private void withdraw() {
-        int amount = getPositiveInt("Enter withdrawal amount: ");
+        double amount = getPositiveDouble("Enter withdrawal amount: ");
         if(amount > userAccount.getBalance()) {
             System.out.println("Insufficient funds. Operation cancelled.");
             return;
@@ -97,9 +104,9 @@ public class MainMenu {
         double balance = userAccount.getBalance();
 
         if (balance < 0) {
-            System.out.println("Balance: -$" + Math.abs(balance));
+            System.out.printf("Balance: -$%.2f%n", Math.abs(balance));
         } else {
-        System.out.println("Balance: $" + balance);
+            System.out.printf("Balance: $%.2f%n", balance);
         }
     }
 
@@ -107,16 +114,17 @@ public class MainMenu {
         if (canTransfer() == false) return;
 
         String targetName = getExistingAccountName("Enter account to transfer to (or type 'cancel' to cancel): ");
+
+        if (targetName.equals("cancel")) {
+            System.out.println("Transfer cancelled.");
+            return;
+        }
         if (targetName.equals(userAccount.getName())) {
             System.out.println("Cannot transfer to the same account.");
             return;
         }
-        if(targetName.equals("cancel")) {
-            System.out.println("Transfer cancelled.");
-            return;
-        }
 
-        int amount = getValidTransferAmount();
+        double amount = getValidTransferAmount();
 
         userAccount.transfer(userAccounts.get(targetName), amount);
     }
@@ -188,12 +196,17 @@ public class MainMenu {
                             Helper Methods
     ---------------------------------------------------------*/
 
-    private int getPositiveInt(String prompt) {
-        int value;
+    private double getPositiveDouble(String prompt) {
+        double value;
         do {
             System.out.print(prompt);
-            value = keyboardInput.nextInt();
+            while (!keyboardInput.hasNextDouble()) {
+                System.out.println("Invalid input.");
+                keyboardInput.next();
+            }
+            value = keyboardInput.nextDouble();
             keyboardInput.nextLine(); // clear buffer
+
             if(value <= 0) {
                 System.out.println("Amount must be positive. Try again.");
             }
@@ -201,10 +214,10 @@ public class MainMenu {
         return value;
     }
 
-    private int getValidTransferAmount() {
-        int amount;
+    private double getValidTransferAmount() {
+        double amount;
         do {
-            amount = getPositiveInt("Enter transfer amount: ");
+            amount = getPositiveDouble("Enter transfer amount: ");
             if (amount > userAccount.getBalance()) {
                 System.out.println("Insufficient funds. Try again.");
             }

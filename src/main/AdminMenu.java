@@ -17,7 +17,7 @@ public class AdminMenu {
         this.keyboardInput = new Scanner(System.in);
     }
 
-    public void displayOptions() {
+    public void displayOptions() {  
         System.out.println("\nWelcome to the 2307 Bank App! --- ADMIN ---");
         
         System.out.println("1. Collect fees");
@@ -31,7 +31,14 @@ public class AdminMenu {
         int selection = -1;
         while(selection < 0 || selection > max) {
             System.out.print("Please make a selection: ");
+            while (!keyboardInput.hasNextInt()) {
+                System.out.println("Invalid input.");
+                keyboardInput.next();
+            }
             selection = keyboardInput.nextInt();
+            if(selection < 0 || selection > max) {
+                System.out.println("Invalid selection. Try again.");
+            }
             keyboardInput.nextLine(); // clear buffer
         }
         return selection;
@@ -59,7 +66,7 @@ public class AdminMenu {
         BankAccount account = promptForAccount("collect fees from");
         if(account == null) return;
 
-        double amount = getPositiveDoubleInput("Enter fee amount to collect: ");
+        double amount = getPositiveDouble("Enter fee amount to collect: ");
 
         if(amount > account.getBalance()) {
             System.out.println("Amount exceeds account balance. Fee collection cancelled.");
@@ -74,7 +81,7 @@ public class AdminMenu {
         BankAccount account = promptForAccount("apply interest to");
         if(account == null) return;
 
-        double interestRate = getPositiveDoubleInput("Enter interest rate to apply (in %): ");
+        double interestRate = getPositiveDouble("Enter interest rate to apply (in %): ");
 
         account.applyInterest(interestRate / 100);
         System.out.println("Applied " + interestRate + "% interest to " + account.getName() + ".");
@@ -96,16 +103,21 @@ public class AdminMenu {
                             Helper Methods
     ---------------------------------------------------------*/
 
-    public double getPositiveDoubleInput(String prompt) {
-        double value = -1;
-        while(value <= 0) {
+    private double getPositiveDouble(String prompt) {
+        double value;
+        do {
             System.out.print(prompt);
+            while (!keyboardInput.hasNextDouble()) {
+                System.out.println("Invalid input.");
+                keyboardInput.next();
+            }
             value = keyboardInput.nextDouble();
             keyboardInput.nextLine(); // clear buffer
+            
             if(value <= 0) {
-                System.out.println("Value must be positive. Try again.");
+                System.out.println("Amount must be positive. Try again.");
             }
-        }
+        } while (value <= 0);
         return value;
     }
 

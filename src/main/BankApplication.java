@@ -85,27 +85,16 @@ public class BankApplication {
         System.out.println("\n=== Register New User ===");
         System.out.print("Enter username: ");
         String username = keyboardInput.nextLine().trim();
-
         if (userDatabase.containsKey(username)) {
             System.out.println("Username already exists. Try another username.");
             return;
         }
-
         System.out.print("Enter password: ");
         String password = keyboardInput.nextLine();
-        System.out.print("Confirm password: ");
-        String confirmPassword = keyboardInput.nextLine();
-
-        if (!password.equals(confirmPassword)) {
-            System.out.println("Passwords do not match. Registration cancelled.");
-            return;
-        }
-
         User newUser = new User(username, password);
         BankAccount defaultAccount = new BankAccount(username);
         newUser.addAccount(defaultAccount);
         userDatabase.put(username, newUser);
-
         System.out.println("\nRegistration successful! Entering User Menu...");
         MainMenu userMenu = new MainMenu(newUser);
         userMenu.run();

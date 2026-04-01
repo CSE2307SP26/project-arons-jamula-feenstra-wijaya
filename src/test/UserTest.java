@@ -35,4 +35,12 @@ public class UserTest {
             //do nothing, test passes
         }
     }
+
+    @Test
+    public void testChangePassword() {
+        User testUser = new User("test", "password");
+        testUser.changePassword("newpassword");
+        assertEquals(true, testUser.login("newpassword"));
+        assertEquals(false, testUser.login("password"));
+    }
 }

@@ -11,17 +11,18 @@ public class MainMenu {
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
-    
+    private User currentUser;
     private HashMap<String, BankAccount> userAccounts; // HashMap that stores all of the user's bankaccounts. Each BankAccount can be retrieved using its name.
 
-    public MainMenu(HashMap<String, BankAccount> sharedAccountsMap) {
-        this.userAccounts = sharedAccountsMap;
-        this.userAccount = userAccounts.get("default");
+    public MainMenu(User user) {
+        this.currentUser = user;
+        this.userAccounts = user.getAllAccounts();
+        this.userAccount = userAccounts.values().iterator().next();
         this.keyboardInput = new Scanner(System.in);
     }
 
     public void displayOptions() {
-        System.out.println("\nWelcome to the 2307 Bank App!");
+        System.out.println("\nWelcome to the 2307 Bank App! (Logged in as: " + currentUser.getUsername() + ")");
         System.out.println("You are currently on account: " + userAccount.getName() + "\n");
         
         System.out.println("1. Make a deposit");
@@ -273,12 +274,12 @@ public class MainMenu {
 
     private boolean canCloseAccount() {
         if (userAccount.getBalance() != 0) {
-            System.out.println("Account balance must be 0.");
+            System.out.println("Operation cancelled. Account balance must be 0.");
             return false;
         }
 
         if (userAccounts.size() == 1) {
-            System.out.println("Cannot delete the only account.");
+            System.out.println("Operation cancelled. Cannot delete the only account.");
             return false;
         }
 

@@ -27,7 +27,15 @@ public class BankApplication {
         int selection = -1;
         while(selection < 0 || selection > max) {
             System.out.print("Please make a selection: ");
+            while (!keyboardInput.hasNextInt()) {
+                System.out.println("Invalid input.");
+                keyboardInput.next();
+            }
             selection = keyboardInput.nextInt();
+            if(selection < 0 || selection > max) {
+                System.out.println("Invalid selection. Try again.");
+            }
+            keyboardInput.nextLine(); // clear buffer
         }
         return selection;
     }

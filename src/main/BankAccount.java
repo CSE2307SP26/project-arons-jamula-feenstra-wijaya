@@ -40,14 +40,14 @@ public class BankAccount {
 
     public void withdraw(double amount, boolean recordTransaction) {
         amount = roundToTwoDecimals(amount);
-        if (amount <= 0) {
-            throw new IllegalArgumentException();
+        if (amount <= 0) {  
+            throw new IllegalArgumentException();          
         } else if (amount > this.balance) {
             throw new IllegalArgumentException();
         } else {
             this.balance -= amount;
             if(recordTransaction) {
-                this.transactionHistory.add(String.format("Withdraw: $%.2f", amount));
+                this.transactionHistory.add(String.format("Withdraw: $%.2f", amount));  
             }
         }
     }
@@ -90,8 +90,8 @@ public class BankAccount {
         if (interestRate <= 0 || this.balance < 0) {
             throw new IllegalArgumentException();
         } else {
-            double rawIntrest = this.balance * interestRate;
-            double roundedInterest = roundToTwoDecimals(rawIntrest);
+            double rawInterest = this.balance * interestRate;
+            double roundedInterest = roundToTwoDecimals(rawInterest);
             this.balance += roundedInterest;
             if(recordTransaction) {
                 this.transactionHistory.add(String.format("Interest Applied: $%.2f", roundedInterest));

@@ -35,4 +35,8 @@ public class User {
     public HashMap<String, BankAccount> getAllAccounts() {
         return this.accounts;
     }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

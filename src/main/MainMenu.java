@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 8;
+	private static final int MAX_SELECTION = 9;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
@@ -33,6 +33,7 @@ public class MainMenu {
         System.out.println("6. Create a new account");
         System.out.println("7. Switch accounts");
         System.out.println("8. Close an account");
+        System.out.println("9. Change user password");
         System.out.println("0. Exit the app");
 
     }
@@ -79,6 +80,9 @@ public class MainMenu {
                 break;
             case 8:
                 closeAccount();
+                break;
+            case 9:
+                changeUserPassword();
                 break;
         }
     }
@@ -192,6 +196,21 @@ public class MainMenu {
         System.out.println("Account '" + name + "' closed.");
     }
 
+    private void changeUserPassword() {
+        System.out.print("Enter current password: ");
+        String currentPassword = keyboardInput.nextLine();
+
+        if (currentUser.login(currentPassword) == false) {
+            System.out.println("Incorrect password. Password change cancelled.");
+            return;
+        }
+
+        System.out.print("Enter new password: ");
+        String newPassword = keyboardInput.nextLine();
+
+        currentUser.changePassword(newPassword);
+        System.out.println("Password changed successfully.");
+    }
 
     /*--------------------------------------------------------
                             Helper Methods

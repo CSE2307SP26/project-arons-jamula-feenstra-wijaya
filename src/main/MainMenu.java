@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 11;
+	private statffic final int MAX_SELECTION = 11;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
@@ -243,6 +243,7 @@ public class MainMenu {
 
     private void createAccount() {
         String name;
+        String accountType;
         do {
             System.out.print("Enter new account name (or type 'cancel' to cancel): ");
             name = keyboardInput.nextLine();
@@ -257,8 +258,17 @@ public class MainMenu {
                 return;
             }
         } while (userAccounts.containsKey(name) || name.trim().isEmpty());
+       do {
+            System.out.println("Checking or Savings account? (or type 'cancel' to cancel): ");
+            System.out.println("(Write Checking or Savings)");
+            accountType = keyboardInput.nextLine();
+            if(name.equalsIgnoreCase("cancel")) {
+                System.out.println("Account creation cancelled.");
+                return;
+            }
+        } while (accountType != "Checking" || "Savings");
 
-        userAccounts.put(name, new BankAccount(name));
+        userAccounts.put(name, new BankAccount(name, accountType));
         System.out.println("Account '" + name + "' created.");
     }
 

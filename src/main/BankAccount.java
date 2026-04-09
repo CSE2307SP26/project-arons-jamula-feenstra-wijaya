@@ -7,11 +7,17 @@ public class BankAccount {
     private double balance;
     private String name;
     private LinkedList<Transaction> transactionHistory;
+    private String accountType;
 
-    public BankAccount(String name) {
+    public BankAccount(String name, String accountType) {
         this.balance = 0;
         this.name = name;
         this.transactionHistory = new LinkedList<Transaction>();
+        this.accountType = accountType;
+    }
+
+    public BankAccount(String name) {
+        this(name, "Savings");
     }
 
     private double roundToTwoDecimals(double value) {
@@ -152,4 +158,9 @@ public class BankAccount {
     public LinkedList<Transaction> getHistory() {
         return this.transactionHistory;
     }
+
+    public String getAccountType() {
+        return this.accountType;
+    }
+
 }

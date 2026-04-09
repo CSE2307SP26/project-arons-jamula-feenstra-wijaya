@@ -92,10 +92,15 @@ public class AdminMenu {
         BankAccount account = promptForUserAccount(user, "apply interest to");
         if(account == null) return;
 
+        if (!account.getAccountType().equals("Savings")){
+            System.out.println("Action Denied: Interest can only be applied to Savings Accounts.")
+            return;
+        }
         double interestRate = getPositiveDouble("Enter interest rate to apply (in %): ");
 
         account.applyInterest(interestRate / 100);
         System.out.println("Applied " + interestRate + "% interest to " + account.getName() + ".");
+
     }
 
     public void listAccounts() {

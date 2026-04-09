@@ -15,7 +15,7 @@ public class BankApplication {
 
     public BankApplication() {
         this.sharedAccountsMap = new HashMap<>();
-        this.sharedAccountsMap.put("default", new BankAccount("default"));
+        this.sharedAccountsMap.put("default", new BankAccount("default", "Savings"));
         this.userDatabase = new HashMap<>();
         this.keyboardInput = new Scanner(System.in);
     }
@@ -92,7 +92,7 @@ public class BankApplication {
         System.out.print("Enter password: ");
         String password = keyboardInput.nextLine();
         User newUser = new User(username, password);
-        BankAccount defaultAccount = new BankAccount(username);
+        BankAccount defaultAccount = new BankAccount(username, "Savings");
         newUser.addAccount(defaultAccount);
         userDatabase.put(username, newUser);
         System.out.println("\nRegistration successful! Entering User Menu...");

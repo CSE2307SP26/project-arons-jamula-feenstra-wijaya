@@ -15,7 +15,7 @@
 4. A user should be able to transfer money into another user's account. (Clifford)
 5. An admin should be able to edit transactions. (Clifford)
 6. A user should be able to be locked out of their account for mistyping their password multiple times. (Harrison)
-7. A user should be able to view a summary of all of their account. (Natalia)
+7. A user should be able to view a summary of all of their accounts. (Natalia)
 8. A user should be able to filter their transaction history. (Harrison)
 
 ## What commands are needed to compile and run your code from the command line?

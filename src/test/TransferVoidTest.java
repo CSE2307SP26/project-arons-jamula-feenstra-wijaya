@@ -64,7 +64,8 @@ public class TransferVoidTest {
         assertEquals(40, bobAcct.getBalance(), 0.01);
 
         System.setIn(new ByteArrayInputStream("alice\nalice\n1\n".getBytes()));
-        new AdminMenu(makeDatabase(alice, bob)).processInput(4);
+        User[] users = {alice, bob};
+        new AdminMenu(makeDatabase(users)).processInput(4);
 
         assertEquals(100, aliceAcct.getBalance(), 0.01);
         assertEquals(0,   bobAcct.getBalance(),   0.01);
@@ -79,7 +80,8 @@ public class TransferVoidTest {
         aliceAcct.transferBetweenUsers(bobAcct, 40, "alice", "bob");
         
         System.setIn(new ByteArrayInputStream("alice\nalice\n1\n".getBytes()));
-        new AdminMenu(makeDatabase(alice, bob)).processInput(4);
+        User[] users = {alice, bob};
+        new AdminMenu(makeDatabase(users)).processInput(4);
 
         assertEquals(1, aliceAcct.getHistory().size());
         assertEquals("void", aliceAcct.getHistory().get(0).getType());

@@ -143,30 +143,45 @@ public class MainMenu {
     private void transferToAnotherUser() {
         if (!canTransferToAnotherUser()) return;
 
+        User recipientUser = getRecipientUser();
+        if (recipientUser == null) return;
+
+        BankAccount recipientAccount = getRecipientAccount(recipientUser);
+        if (recipientAccount == null) return;
+
+        double amount = getValidTransferAmount();
+        userAccount.transferBetweenUsers(recipientAccount, amount, currentUser.getUsername(), recipientUser.getUsername());
+    }
+
+    // Split up getting recipient user and recipient account into separate methods to make the code cleaner and easier to read.
+    private User getRecipientUser() {
         System.out.print("Enter recipient's username (or type 'cancel' to cancel): ");
         String recipientUsername = keyboardInput.nextLine().trim();
 
         if (recipientUsername.equalsIgnoreCase("cancel")) {
             System.out.println("Transfer cancelled.");
-            return;
+            return null;
         }
 
         if (recipientUsername.equals(currentUser.getUsername())) {
             System.out.println("Use 'Option 5: Transfer funds between accounts' to transfer money between your own accounts.");
-            return;
+            return null;
         }
 
         if (!userDatabase.containsKey(recipientUsername)) {
             System.out.println("Recipient user not found. Transfer cancelled.");
-            return;
+            return null;
         }
 
-        User recipientUser = userDatabase.get(recipientUsername);
+        return userDatabase.get(recipientUsername);
+    }
+
+    private BankAccount getRecipientAccount(User recipientUser) {
         HashMap<String, BankAccount> recipientAccounts = recipientUser.getAllAccounts();
 
         if (recipientAccounts.isEmpty()) {
             System.out.println("Recipient has no accounts. Transfer cancelled.");
-            return;
+            return null;
         }
 
         String targetAccountName = getExistingAccountNameInMap(
@@ -174,20 +189,18 @@ public class MainMenu {
 
         if (targetAccountName.equals("cancel")) {
             System.out.println("Transfer cancelled.");
-            return;
+            return null;
         }
 
-        double amount = getValidTransferAmount();
-
-        userAccount.transfer(recipientAccounts.get(targetAccountName), amount);
+        return recipientAccounts.get(targetAccountName);
     }
 
     private void viewTransactionHistory() {
-        LinkedList<String> history = userAccount.getHistory();
+        LinkedList<Transaction> history = userAccount.getHistory();
 
         System.out.println("Transaction history:");
         for (int i = 0; i < history.size(); i++) {
-            System.out.println((i + 1) + ". " + history.get(i));
+            System.out.println((i + 1) + ". " + history.get(i).getDescription());
         }
     }
 

@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 10;
+	private static final int MAX_SELECTION = 11;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
@@ -31,12 +31,13 @@ public class MainMenu {
         System.out.println("2. Withdraw funds");
         System.out.println("3. Check account balance");
         System.out.println("4. View transaction history");
-        System.out.println("5. Transfer funds between accounts");
-        System.out.println("6. Transfer funds to another user's account");
-        System.out.println("7. Create a new account");
-        System.out.println("8. Switch accounts");
-        System.out.println("9. Close an account");
-        System.out.println("10. Change user password");
+        System.out.println("5. Filter transaction history");
+        System.out.println("6. Transfer funds between accounts");
+        System.out.println("7. Transfer funds to another user's account");
+        System.out.println("8. Create a new account");
+        System.out.println("9. Switch accounts");
+        System.out.println("10. Close an account");
+        System.out.println("11. Change user password");
         System.out.println("0. Exit the app");
 
     }
@@ -73,21 +74,24 @@ public class MainMenu {
                 viewTransactionHistory();
                 break;
             case 5:
-                transfer();
+                filterTransactionHistory();
                 break;
             case 6:
-                transferToAnotherUser();
+                transfer();
                 break;
             case 7:
-                createAccount();
+                transferToAnotherUser();
                 break;
             case 8:
-                switchAccount();
+                createAccount();
                 break;
             case 9:
-                closeAccount();
+                switchAccount();
                 break;
             case 10:
+                closeAccount();
+                break;
+            case 11:
                 changeUserPassword();
                 break;
         }
@@ -198,9 +202,42 @@ public class MainMenu {
     private void viewTransactionHistory() {
         LinkedList<Transaction> history = userAccount.getHistory();
 
+        if (history.size() == 0) {
+            System.out.println("No transactions.");
+            return;
+        }
+
         System.out.println("Transaction history:");
         for (int i = 0; i < history.size(); i++) {
             System.out.println((i + 1) + ". " + history.get(i).getDescription());
+        }
+    }
+
+    private void filterTransactionHistory() {
+        LinkedList<Transaction> history = userAccount.getHistory();
+
+        if (history.size() == 0) {
+            System.out.println("No transactions.");
+            return;
+        }
+
+        System.out.println("Transaction history:");
+        for (int i = 0; i < history.size(); i++) {
+            System.out.println((i + 1) + ". " + history.get(i).getDescription());
+        }
+        String transactionType = getTransactionType();
+        if (transactionType.equals("cancel")) {
+            System.out.println("Transaction filter cancelled.");
+            return;
+        }
+        if (transactionType.equals("not found")) {
+            System.out.println("Transaction type not found.");
+            return;
+        }
+        for (int i = 0; i < history.size(); i++) {
+            if (history.get(i).getType().equals(transactionType)) {
+                System.out.println((i + 1) + ". " + history.get(i).getDescription());
+            }   
         }
     }
 
@@ -363,6 +400,23 @@ public class MainMenu {
 
             System.out.println("Account not found. Try again.");
         }
+    }
+
+    private String getTransactionType() {
+        String transactionType;
+        System.out.println("Which transaction type would you like to filter for?");
+        System.out.println("Options include: deposit, withdraw, transfer, received, inter-user-transfer, inter-user-receipt, fee, interest");
+        transactionType = keyboardInput.nextLine();
+
+        if (transactionType.equalsIgnoreCase("cancel")) {
+            return "cancel";
+        }
+        for (Transaction t : userAccount.getHistory()) {
+            if (t.getType().equals(transactionType)) {
+                return transactionType;
+            }
+        }
+        return "not found";
     }
 
     private String confirmClose() {

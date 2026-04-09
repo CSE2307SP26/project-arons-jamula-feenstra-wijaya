@@ -20,12 +20,12 @@
 
 ## User stories intended to complete next iteration
 1. A user should be able to view timestamps for each transaction in their transaction history.
-2. A user should be able to search their transaction history using keywords.
-3. A user’s account data should persist between application runs so that information is not lost when the program is restarted.
+2. An admin should be able to view an audit log for their past actions.
+3. An admin should be able to freeze an account. 
 4. A user should receive a warning when their account balance falls below a minimum threshold.
 5. A user should be able to export their transaction history to a text file.
 6. A user should be charged a small fee when transferring funds between accounts.
-7. A user should be required to re-authenticate after a period of inactivity.
+7. A user should be able to add a note to each of their transactions.
 8. A user should be able to undo their most recent transaction.
 
 ## Is there anything that you implemented but doesn't currently work?

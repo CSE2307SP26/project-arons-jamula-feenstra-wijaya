@@ -7,13 +7,13 @@
 * Andrew Feenstra
 * Clifford Wijaya
 
-## User stories completed
+## User stories
 
 1. A user should be able to login to their personal accounts before their bank accounts. (Andrew)
 2. A user should be able to create different types of accounts (checking or savings). (Natalia)
 3. A user should be able to change their password. (Andrew)
 4. A user should be able to transfer money into another user's account. (Clifford)
-5. An admin should be able to void inter-user transfer transactions. (Clifford)
+5. An admin should be able to edit transactions. (Clifford)
 6. A user should be able to be locked out of their account for mistyping their password multiple times. (Harrison)
 7. A user should be able to view a summary of all of their accounts. (Natalia)
 8. A user should be able to filter their transaction history. (Harrison)

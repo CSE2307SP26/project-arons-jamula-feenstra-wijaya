@@ -69,12 +69,22 @@ public class BankApplication {
             String password = keyboardInput.nextLine();
             User user = userDatabase.get(username);
 
+            if (user.isLocked()) {
+                System.out.println("\n[SECURITY ALERT] Account is locked due to multiple failed login attempts.");
+                System.out.println("Please contact an administrator to unlock your account.");
+                return;
+            }
+
             if (user.login(password)) {
                 System.out.println("\n--- Login Successful ---");
                 MainMenu userMenu = new MainMenu(user, userDatabase);
                 userMenu.run();
             } else {
-                System.out.println("Invalid password. Try again.");
+                if (user.isLocked()) {
+                    System.out.println("\n[SECURITY ALERT] Too many failed attempts. Your account has been locked.");
+                } else {
+                    System.out.println("Invalid password. Try again.");
+                }
             }
         } else {
             System.out.println("\nUser not found.");

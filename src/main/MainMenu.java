@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private statffic final int MAX_SELECTION = 11;
+	private statffic final int MAX_SELECTION = 12;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
@@ -38,6 +38,7 @@ public class MainMenu {
         System.out.println("9. Switch accounts");
         System.out.println("10. Close an account");
         System.out.println("11. Change user password");
+        System.out.println("12. Get summary of all accounts");
         System.out.println("0. Exit the app");
 
     }
@@ -93,6 +94,9 @@ public class MainMenu {
                 break;
             case 11:
                 changeUserPassword();
+                break;
+            case 12:
+                userAccountsSummary();
                 break;
         }
     }
@@ -318,6 +322,12 @@ public class MainMenu {
 
         currentUser.changePassword(newPassword);
         System.out.println("Password changed successfully.");
+    }
+
+    private void userAccountsSummary() {
+        for (String name : userAccounts.keySet()) {
+            System.out.println(name + ": " + userAccounts.get(name).getAccountType() + ", $" + userAccounts.get(name).getBalance());
+        }
     }
 
     /*--------------------------------------------------------

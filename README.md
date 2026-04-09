@@ -18,6 +18,9 @@
 7. A user should be able to view a summary of all of their accounts. (Natalia)
 8. A user should be able to filter their transaction history. (Harrison)
 
+## Is there anything that you implemented but doesn't currently work?
+No
+
 ## What commands are needed to compile and run your code from the command line?
 1. cd into project-arons-jamula-feenstra-wijaya
 2. ./runApp.sh

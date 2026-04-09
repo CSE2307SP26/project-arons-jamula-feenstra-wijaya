@@ -34,3 +34,4 @@ For the inter-user transfer transactions, the void action works if you select th
 ## What commands are needed to compile and run your code from the command line?
 1. cd into project-arons-jamula-feenstra-wijaya
 2. ./runApp.sh
+Note: Admin Username is admin, Admin password is 123

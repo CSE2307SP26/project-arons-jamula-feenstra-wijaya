@@ -25,6 +25,7 @@ public class AdminMenu {
         System.out.println("2. Apply interest");
         System.out.println("3. List all accounts");
         System.out.println("4. Void inter-user transfer");
+        System.out.println("5. Unlock user account");
         System.out.println("0. Exit the app");
 
     }
@@ -59,6 +60,9 @@ public class AdminMenu {
                 break;
             case 4:
                 voidTransaction();
+                break;
+            case 5:
+                unlockUserAccount();
                 break;
         }
     }
@@ -238,6 +242,18 @@ public class AdminMenu {
             if (t.getId() == id) return t;
         }
         return null;
+    }
+
+    private void unlockUserAccount() {
+        User user = promptForUser();
+        if (user == null) return;
+
+        if (!user.isLocked()) {
+            System.out.println("User '" + user.getUsername() + "' is not currently locked.");
+            return;
+        }
+        user.unlockAccount();
+        System.out.println("User '" + user.getUsername() + "' has been unlocked and their failed attempts have been reset.");
     }
 
     /*--------------------------------------------------------

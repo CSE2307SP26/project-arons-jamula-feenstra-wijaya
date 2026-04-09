@@ -93,7 +93,7 @@ public class AdminMenu {
         if(account == null) return;
 
         if (!account.getAccountType().equals("Savings")){
-            System.out.println("Action Denied: Interest can only be applied to Savings Accounts.")
+            System.out.println("Action Denied: Interest can only be applied to Savings Accounts.");
             return;
         }
         double interestRate = getPositiveDouble("Enter interest rate to apply (in %): ");

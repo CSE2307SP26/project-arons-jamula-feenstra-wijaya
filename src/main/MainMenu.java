@@ -7,15 +7,17 @@ import java.util.Scanner;
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 9;
+	private static final int MAX_SELECTION = 10;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
     private User currentUser;
     private HashMap<String, BankAccount> userAccounts; // HashMap that stores all of the user's bankaccounts. Each BankAccount can be retrieved using its name.
+    private HashMap<String, User> userDatabase;
 
-    public MainMenu(User user) {
+    public MainMenu(User user, HashMap<String, User> userDatabase) {
         this.currentUser = user;
+        this.userDatabase = userDatabase;
         this.userAccounts = user.getAllAccounts();
         this.userAccount = userAccounts.values().iterator().next();
         this.keyboardInput = new Scanner(System.in);
@@ -30,10 +32,11 @@ public class MainMenu {
         System.out.println("3. Check account balance");
         System.out.println("4. View transaction history");
         System.out.println("5. Transfer funds between accounts");
-        System.out.println("6. Create a new account");
-        System.out.println("7. Switch accounts");
-        System.out.println("8. Close an account");
-        System.out.println("9. Change user password");
+        System.out.println("6. Transfer funds to another user's account");
+        System.out.println("7. Create a new account");
+        System.out.println("8. Switch accounts");
+        System.out.println("9. Close an account");
+        System.out.println("10. Change user password");
         System.out.println("0. Exit the app");
 
     }
@@ -73,15 +76,18 @@ public class MainMenu {
                 transfer();
                 break;
             case 6:
-                createAccount();
+                transferToAnotherUser();
                 break;
             case 7:
-                switchAccount();
+                createAccount();
                 break;
             case 8:
-                closeAccount();
+                switchAccount();
                 break;
             case 9:
+                closeAccount();
+                break;
+            case 10:
                 changeUserPassword();
                 break;
         }
@@ -132,6 +138,48 @@ public class MainMenu {
         double amount = getValidTransferAmount();
 
         userAccount.transfer(userAccounts.get(targetName), amount);
+    }
+
+    private void transferToAnotherUser() {
+        if (!canTransferToAnotherUser()) return;
+
+        System.out.print("Enter recipient's username (or type 'cancel' to cancel): ");
+        String recipientUsername = keyboardInput.nextLine().trim();
+
+        if (recipientUsername.equalsIgnoreCase("cancel")) {
+            System.out.println("Transfer cancelled.");
+            return;
+        }
+
+        if (recipientUsername.equals(currentUser.getUsername())) {
+            System.out.println("Use 'Option 5: Transfer funds between accounts' to transfer money between your own accounts.");
+            return;
+        }
+
+        if (!userDatabase.containsKey(recipientUsername)) {
+            System.out.println("Recipient user not found. Transfer cancelled.");
+            return;
+        }
+
+        User recipientUser = userDatabase.get(recipientUsername);
+        HashMap<String, BankAccount> recipientAccounts = recipientUser.getAllAccounts();
+
+        if (recipientAccounts.isEmpty()) {
+            System.out.println("Recipient has no accounts. Transfer cancelled.");
+            return;
+        }
+
+        String targetAccountName = getExistingAccountNameInMap(
+                recipientAccounts, "Enter recipient account name (or type 'cancel' to cancel): ");
+
+        if (targetAccountName.equals("cancel")) {
+            System.out.println("Transfer cancelled.");
+            return;
+        }
+
+        double amount = getValidTransferAmount();
+
+        userAccount.transfer(recipientAccounts.get(targetAccountName), amount);
     }
 
     private void viewTransactionHistory() {
@@ -258,6 +306,14 @@ public class MainMenu {
         return true;
     }
 
+    private boolean canTransferToAnotherUser() {
+        if (userAccount.getBalance() <= 0) {
+            System.out.println("Insufficient funds to make a transfer. Operation cancelled.");
+            return false;
+        }
+        return true;
+    }
+
     private String getExistingAccountName(String prompt) {
         String name;
 
@@ -270,6 +326,25 @@ public class MainMenu {
             }
 
             if (userAccounts.containsKey(name)) {
+                return name;
+            }
+
+            System.out.println("Account not found. Try again.");
+        }
+    }
+
+    private String getExistingAccountNameInMap(HashMap<String, BankAccount> accounts, String prompt) {
+        String name;
+
+        while (true) {
+            System.out.print(prompt);
+            name = keyboardInput.nextLine();
+
+            if (name.equalsIgnoreCase("cancel")) {
+                return "cancel";
+            }
+
+            if (accounts.containsKey(name)) {
                 return name;
             }
 

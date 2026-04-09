@@ -71,7 +71,7 @@ public class BankApplication {
 
             if (user.login(password)) {
                 System.out.println("\n--- Login Successful ---");
-                MainMenu userMenu = new MainMenu(user);
+                MainMenu userMenu = new MainMenu(user, userDatabase);
                 userMenu.run();
             } else {
                 System.out.println("Invalid password. Try again.");
@@ -96,7 +96,7 @@ public class BankApplication {
         newUser.addAccount(defaultAccount);
         userDatabase.put(username, newUser);
         System.out.println("\nRegistration successful! Entering User Menu...");
-        MainMenu userMenu = new MainMenu(newUser);
+        MainMenu userMenu = new MainMenu(newUser, userDatabase);
         userMenu.run();
     }
 

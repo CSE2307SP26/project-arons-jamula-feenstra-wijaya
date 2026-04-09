@@ -19,14 +19,14 @@
 8. A user should be able to filter their transaction history. (Harrison)
 
 ## User stories intended to complete next iteration
-1. A user should be able to view timestamps for each transaction in their transaction history.
-2. An admin should be able to view an audit log for their past actions.
-3. An admin should be able to freeze an account. 
-4. A user should receive a warning when their account balance falls below a minimum threshold.
-5. A user should be able to export their transaction history to a text file.
-6. A user should be charged a small fee when transferring funds between accounts.
-7. A user should be able to add a note to each of their transactions.
-8. A user should be able to undo their most recent transaction.
+1. A user should be able to view timestamps for each transaction in their transaction history. (Andrew)
+2. An admin should be able to view an audit log for their past actions. (Cliff)
+3. An admin should be able to freeze an account. (Natalia)
+4. A user should receive a warning when their account balance falls below a minimum threshold. (Harrison)
+5. A user should be able to export their transaction history to a text file. (Andrew)
+6. A user should be charged a small fee when transferring funds between accounts. (Natalia)
+7. A user should be able to add a note to each of their transactions. (Cliff)
+8. A user should be able to undo their most recent transaction. (Harrison)
 
 ## Is there anything that you implemented but doesn't currently work?
 For the inter-user transfer transactions, the void action works if you select the sending username and sending account, but it seems to break when selecting the receiving username and corresponding receiving account.

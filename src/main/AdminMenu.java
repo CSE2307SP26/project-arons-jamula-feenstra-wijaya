@@ -137,22 +137,20 @@ public class AdminMenu {
     }
 
     private void voidTransaction() {
-        User senderUser = promptForUser();
-        if (senderUser == null) return;
-
-        BankAccount senderAcct = promptForUserAccount(senderUser, "select sender account");
-        if (senderAcct == null) return;
-
-        Transaction transactionToVoid = pickTransaction(senderAcct, senderUser.getUsername());
+        User selectedUser = promptForUser();
+        if (selectedUser == null) return;
+        BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
+        if (selectedAcct == null) return;
+        Transaction transactionToVoid = pickTransaction(selectedAcct, selectedUser.getUsername());
         if (transactionToVoid == null) return;
-
-        BankAccount recipientAcct = findRecipientAccount(transactionToVoid);
-        if (recipientAcct == null) return;
-
-        if (!canReverseTransfer(recipientAcct, transactionToVoid.getAmount())) return;
-
-        reverseTransfer(senderAcct, recipientAcct, senderUser.getUsername(), transactionToVoid);
-
+        BankAccount[] roles = resolveVoidAccounts(selectedAcct, transactionToVoid);
+        if (roles == null) return;
+        Transaction senderTx = resolveSenderTx(transactionToVoid, roles[0]);
+        if (senderTx == null) return;
+        if (!canReverseTransfer(roles[1], senderTx.getAmount())) return;
+        String senderUsername = transactionToVoid.getType().equals("inter-user-transfer")
+                ? selectedUser.getUsername() : transactionToVoid.getRelatedUser();
+        roles[0].reverseTransfer(roles[1], senderUsername, senderTx);
         System.out.println("Transfer voided; balances and histories updated.");
     }
 
@@ -172,24 +170,44 @@ public class AdminMenu {
     /*--------------------------------------------------------
                     Void Transaction Helpers
     ---------------------------------------------------------*/
+    private BankAccount[] resolveVoidAccounts(BankAccount selectedAcct, Transaction tx) {
+        if (tx.getType().equals("inter-user-transfer")) {
+            BankAccount recipientAcct = findRelatedAccount(tx);
+            if (recipientAcct == null) return null;
+            return new BankAccount[]{selectedAcct, recipientAcct};
+        }
+        BankAccount senderAcct = findRelatedAccount(tx);
+        if (senderAcct == null) return null;
+        return new BankAccount[]{senderAcct, selectedAcct};
+    }
+
+    private Transaction resolveSenderTx(Transaction tx, BankAccount senderAcct) {
+        if (tx.getType().equals("inter-user-transfer")) return tx;
+        for (Transaction t : senderAcct.getHistory()) {
+            if (t.getId() == tx.getLinkedId()) return t;
+        }
+        System.out.println("Linked sender transaction not found. Void cancelled.");
+        return null;
+    }
+
     private Transaction pickTransaction(BankAccount account, String username) {
-        LinkedList<Transaction> history = account.getHistory();
-        if (history.isEmpty()) {
-            System.out.println("No transactions on this account.");
+        LinkedList<Transaction> interUserTxs = new LinkedList<>();
+        for (Transaction t : account.getHistory()) {
+            if (t.getType().equals("inter-user-transfer") || t.getType().equals("inter-user-receipt")) {
+                interUserTxs.add(t);
+            }
+        }
+        if (interUserTxs.isEmpty()) {
+            System.out.println("No inter-user transfers found on this account.");
             return null;
         }
-        System.out.println("\nTransaction history (" + username + " / " + account.getName() + "):");
-        for (int i = 0; i < history.size(); i++) {
-            System.out.println((i + 1) + ". " + history.get(i).getDescription());
+        System.out.println("\nInter-user transfers (" + username + " / " + account.getName() + "):");
+        for (int i = 0; i < interUserTxs.size(); i++) {
+            System.out.println((i + 1) + ". " + interUserTxs.get(i).getDescription());
         }
-        int lineNum = getLineSelection(history.size());
+        int lineNum = getLineSelection(interUserTxs.size());
         if (lineNum == 0) return null;
-        Transaction selected = history.get(lineNum - 1);
-        if (!selected.getType().equals("inter-user-transfer")) {
-            System.out.println("Only inter-user transactions can be voided!");
-            return null;
-        }
-        return selected;
+        return interUserTxs.get(lineNum - 1);
     }
 
     private int getLineSelection(int max) {
@@ -210,7 +228,7 @@ public class AdminMenu {
         }
     }
 
-    private BankAccount findRecipientAccount(Transaction transactionToVoid) {
+    private BankAccount findRelatedAccount(Transaction transactionToVoid) {
         String recipientUsername = transactionToVoid.getRelatedUser();
         String recipientAccountName = transactionToVoid.getRelatedAccount();
         if (!userDatabase.containsKey(recipientUsername)) {
@@ -232,35 +250,6 @@ public class AdminMenu {
             return false;
         }
         return true;
-    }
-
-    private void reverseTransfer(BankAccount senderAcct, BankAccount recipientAcct,
-                                 String senderUsername, Transaction transactionToVoid) {
-        Transaction receptionToVoid =
-                findTransactionById(recipientAcct.getHistory(), transactionToVoid.getLinkedId());
-        recipientAcct.withdraw(transactionToVoid.getAmount(), false);
-        senderAcct.deposit(transactionToVoid.getAmount(), false);
-        senderAcct.getHistory().remove(transactionToVoid);
-        if (receptionToVoid != null) recipientAcct.getHistory().remove(receptionToVoid);
-        senderAcct.getHistory().add(new Transaction("void",
-                String.format("VOID (admin): Reversed transfer of $%.2f to %s (%s)",
-                        transactionToVoid.getAmount(),
-                        transactionToVoid.getRelatedUser(),
-                        transactionToVoid.getRelatedAccount()),
-                        transactionToVoid.getAmount()));
-        recipientAcct.getHistory().add(new Transaction("void",
-                String.format("VOID (admin): Reversed transfer of $%.2f from %s (%s)",
-                        transactionToVoid.getAmount(),
-                        senderUsername,
-                        senderAcct.getName()),
-                        transactionToVoid.getAmount()));
-    }
-
-    private Transaction findTransactionById(LinkedList<Transaction> history, int id) {
-        for (Transaction t : history) {
-            if (t.getId() == id) return t;
-        }
-        return null;
     }
 
     /*--------------------------------------------------------

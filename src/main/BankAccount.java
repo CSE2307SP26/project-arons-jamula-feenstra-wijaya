@@ -129,6 +129,26 @@ public class BankAccount {
         }
     }
 
+    public void reverseTransfer(BankAccount recipientAcct, String senderUsername, Transaction senderTx) {
+        Transaction recipientTx = findTransactionById(recipientAcct.getHistory(), senderTx.getLinkedId());
+        recipientAcct.withdraw(senderTx.getAmount(), false);
+        this.deposit(senderTx.getAmount(), false);
+        this.transactionHistory.remove(senderTx);
+        if (recipientTx != null) recipientAcct.getHistory().remove(recipientTx);
+        this.transactionHistory.add(new Transaction("void",
+                String.format("VOID (admin): Reversed transfer of $%.2f to %s (%s)",
+                        senderTx.getAmount(),
+                        senderTx.getRelatedUser(),
+                        senderTx.getRelatedAccount()),
+                senderTx.getAmount()));
+        recipientAcct.getHistory().add(new Transaction("void",
+                String.format("VOID (admin): Reversed transfer of $%.2f from %s (%s)",
+                        senderTx.getAmount(),
+                        senderUsername,
+                        this.getName()),
+                senderTx.getAmount()));
+    }
+
     /*--------------------------------------------------------
                          Getters / Setters
     ---------------------------------------------------------*/
@@ -190,5 +210,12 @@ public class BankAccount {
         this.transactionHistory.add(transactions[0]);
         otherBankAccount.deposit(amount, false);
         otherBankAccount.getHistory().add(transactions[1]);
+    }
+
+    private Transaction findTransactionById(LinkedList<Transaction> history, int id) {
+        for (Transaction t : history) {
+            if (t.getId() == id) return t;
+        }
+        return null;
     }
 }

@@ -395,7 +395,7 @@ public class MainMenu {
 
     private String getTransactionType() {
         System.out.println("Which transaction type would you like to filter for?");
-        System.out.println("Options include: deposit, withdraw, transfer, received, inter-user-transfer, inter-user-receipt, fee, interest");
+        System.out.println("Options include: deposit, withdraw, transfer, received, inter-user-transfer, inter-user-receipt, fee, interest, void");
 
         String transactionType = keyboardInput.nextLine();
 

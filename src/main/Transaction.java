@@ -11,20 +11,22 @@ public class Transaction {
     private final double amount;
     private final String user;
     private final String userAccount;
+    private final String note;
     private int linkedId;
 
-    public Transaction(String type, String description, double amount, String relatedUser, String relatedAccount) {
+    public Transaction(String type, String description, double amount, String relatedUser, String relatedAccount, String note) {
         this.id = nextId++;
         this.type = type;
         this.description = description;
         this.amount = amount;
         this.user = relatedUser;
         this.userAccount = relatedAccount;
+        this.note = note;
         this.linkedId = -1;
     }
 
     public Transaction(String type, String description, double amount) {
-        this(type, description, amount, null, null);
+        this(type, description, amount, null, null, null);
     }
 
     public int getId()             { return id; }
@@ -33,6 +35,7 @@ public class Transaction {
     public double getAmount()      { return amount; }
     public String getRelatedUser() { return user; }
     public String getRelatedAccount() { return userAccount; }
+    public String getNote()        { return note; }
     public int getLinkedId()       { return linkedId; }
     public void setLinkedId(int linkedId) { this.linkedId = linkedId; }
 

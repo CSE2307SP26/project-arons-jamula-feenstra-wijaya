@@ -142,7 +142,8 @@ public class MainMenu {
         }
 
         double amount = getValidTransferAmount();
-        userAccount.transfer(userAccounts.get(targetName), amount);
+        String note = addNote();
+        userAccount.transfer(userAccounts.get(targetName), amount, note);
     }
 
     private void transferToAnotherUser() {
@@ -155,8 +156,9 @@ public class MainMenu {
         if (recipientAccount == null) return;
 
         double amount = getValidTransferAmount();
+        String note = addNote();
         userAccount.transferBetweenUsers(recipientAccount, amount,
-                currentUser.getUsername(), recipientUser.getUsername());
+                currentUser.getUsername(), recipientUser.getUsername(), note);
     }
 
     private void viewTransactionHistory() {
@@ -196,7 +198,7 @@ public class MainMenu {
         }
         for (Transaction t : history)
             if (t.getType().equals(type))
-                System.out.println(t.getDescription());
+                System.out.println(t.getDescription() + (t.getNote() != null ? " [Note: " + t.getNote() + "]" : ""));
     }
 
     private void createAccount() {
@@ -309,6 +311,12 @@ public class MainMenu {
     /*--------------------------------------------------------
                     General Helper Methods
     ---------------------------------------------------------*/
+    private String addNote() {
+        System.out.print("Add a note (optional, press Enter to skip): ");
+        String note = keyboardInput.nextLine().trim();
+        return note.isEmpty() ? null : note;
+    }
+
     private double getPositiveDouble(String prompt) {
         double value;
         do {

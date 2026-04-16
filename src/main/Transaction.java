@@ -24,7 +24,7 @@ public class Transaction {
                           Constructors
     ---------------------------------------------------------*/
     public Transaction(String type, String description, double amount,
-                       String relatedUser, String relatedAccount) {
+                       String relatedUser, String relatedAccount, String note) {
         this.id = nextId++;
         this.type = type;
         this.description = description;
@@ -59,6 +59,9 @@ public class Transaction {
     }
     public String getRelatedAccount() { 
         return userAccount; 
+    }
+    public String getNote() { 
+        return note; 
     }
     public int getLinkedId() { 
         return linkedId; 

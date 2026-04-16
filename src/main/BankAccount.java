@@ -99,16 +99,21 @@ public class BankAccount {
 
         this.transactionHistory.add(new Transaction("transfer",
                 String.format("Transferred: $%.2f to %s", amount, otherBankAccount.getName()),
-                amount, null, otherBankAccount.getName()));
+                amount, null, otherBankAccount.getName(), note));
 
         otherBankAccount.deposit(amount, false);
         otherBankAccount.getHistory().add(new Transaction("received",
                 String.format("Received: $%.2f from %s", amount, this.getName()),
-                amount, null, this.getName()));
+                amount, null, this.getName(), null));
     }
 
     public void transferBetweenUsers(BankAccount otherBankAccount, double amount,
             String fromUserUsername, String toUserUsername) {
+        transferBetweenUsers(otherBankAccount, amount, fromUserUsername, toUserUsername, null);
+    }
+
+    public void transferBetweenUsers(BankAccount otherBankAccount, double amount,
+            String fromUserUsername, String toUserUsername, String note) {
 
         amount = roundToTwoDecimals(amount);
         validateTransfer(amount);
@@ -116,7 +121,7 @@ public class BankAccount {
         this.withdraw(amount, false);
 
         Transaction[] transactions = createInterUserTransactions(
-                otherBankAccount, amount, fromUserUsername, toUserUsername);
+                otherBankAccount, amount, fromUserUsername, toUserUsername, note);
 
         applyInterUserTransfer(otherBankAccount, amount, transactions);
     }
@@ -214,17 +219,17 @@ public class BankAccount {
     }
 
     private Transaction[] createInterUserTransactions(BankAccount otherBankAccount, double amount,
-            String fromUser, String toUser) {
+            String fromUser, String toUser, String note) {
 
         Transaction senderTransaction = new Transaction("inter-user-transfer",
                 String.format("Inter-user transfer: $%.2f to %s with account name %s",
                         amount, toUser, otherBankAccount.getName()),
-                amount, toUser, otherBankAccount.getName());
+                amount, toUser, otherBankAccount.getName(), note);
 
         Transaction recipientTransaction = new Transaction("inter-user-receipt",
                 String.format("Inter-user transfer: $%.2f from %s with account name %s",
                         amount, fromUser, this.getName()),
-                amount, fromUser, this.getName());
+                amount, fromUser, this.getName(), null);
 
         senderTransaction.setLinkedId(recipientTransaction.getId());
         recipientTransaction.setLinkedId(senderTransaction.getId());

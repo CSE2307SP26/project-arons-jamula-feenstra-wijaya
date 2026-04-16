@@ -1,3 +1,3 @@
-# Necessay to allow for Linux/Ubuntu terminals to run the script, as the VSCode default
+# Necessary to allow for Linux/Ubuntu terminals to run the script, as the VSCode default
 # forces CRLF line endings without this, which doesn't work in Linux/Ubuntu terminals
 *.sh text eol=lf

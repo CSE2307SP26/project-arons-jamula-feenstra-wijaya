@@ -4,15 +4,21 @@ import java.util.LinkedList;
 
 public class BankAccount {
 
+    /*--------------------------------------------------------
+                            Fields
+    ---------------------------------------------------------*/
     private double balance;
     private String name;
     private LinkedList<Transaction> transactionHistory;
     private String accountType;
 
+    /*--------------------------------------------------------
+                          Constructors
+    ---------------------------------------------------------*/
     public BankAccount(String name, String accountType) {
         this.balance = 0;
         this.name = name;
-        this.transactionHistory = new LinkedList<Transaction>();
+        this.transactionHistory = new LinkedList<>();
         this.accountType = accountType;
     }
 
@@ -20,10 +26,9 @@ public class BankAccount {
         this(name, "Savings");
     }
 
-    private double roundToTwoDecimals(double value) {
-        return Math.round(value * 100.0) / 100.0;
-    }
-
+    /*--------------------------------------------------------
+                         Core Actions
+    ---------------------------------------------------------*/
     public void deposit(double amount) {
         deposit(amount, true);
     }
@@ -71,16 +76,14 @@ public class BankAccount {
 
     public void withdraw(double amount, boolean recordTransaction) {
         amount = roundToTwoDecimals(amount);
-        if (amount <= 0) {
+        if (amount <= 0 || amount > this.balance) {
             throw new IllegalArgumentException();
-        } else if (amount > this.balance) {
-            throw new IllegalArgumentException();
-        } else {
-            this.balance -= amount;
-            if(recordTransaction) {
-                this.transactionHistory.add(new Transaction("withdraw",
-                        String.format("Withdraw: $%.2f", amount), amount));
-            }
+        }
+
+        this.balance -= amount;
+        if(recordTransaction) {
+            this.transactionHistory.add(new Transaction("withdraw",
+                    String.format("Withdraw: $%.2f", amount), amount));
         }
     }
 
@@ -90,55 +93,32 @@ public class BankAccount {
 
     public void transfer(BankAccount otherBankAccount, double amount, String note) {
         amount = roundToTwoDecimals(amount);
-        if (amount <= 0) {
-            throw new IllegalArgumentException();
-        } else if (amount > this.balance) {
-            throw new IllegalArgumentException();
-        } else {
-            this.withdraw(amount, false);
-            this.transactionHistory.add(new Transaction("transfer",
-                    String.format("Transferred: $%.2f to %s", amount, otherBankAccount.getName()),
-                    amount, null, otherBankAccount.getName(), note));
-            otherBankAccount.deposit(amount, false);
-            otherBankAccount.getHistory().add(new Transaction("received",
-                    String.format("Received: $%.2f from %s", amount, this.getName()),
-                    amount, null, this.getName(), null));
-        }
+        validateTransfer(amount);
+
+        this.withdraw(amount, false);
+
+        this.transactionHistory.add(new Transaction("transfer",
+                String.format("Transferred: $%.2f to %s", amount, otherBankAccount.getName()),
+                amount, null, otherBankAccount.getName()));
+
+        otherBankAccount.deposit(amount, false);
+        otherBankAccount.getHistory().add(new Transaction("received",
+                String.format("Received: $%.2f from %s", amount, this.getName()),
+                amount, null, this.getName()));
     }
 
     public void transferBetweenUsers(BankAccount otherBankAccount, double amount,
             String fromUserUsername, String toUserUsername) {
-        transferBetweenUsers(otherBankAccount, amount, fromUserUsername, toUserUsername, null);
-    }
 
-    public void transferBetweenUsers(BankAccount otherBankAccount, double amount,
-            String fromUserUsername, String toUserUsername, String note) {
         amount = roundToTwoDecimals(amount);
-        if (amount <= 0) {
-            throw new IllegalArgumentException();
-        } else if (amount > this.balance) {
-            throw new IllegalArgumentException();
-        } else {
-            this.withdraw(amount, false);
+        validateTransfer(amount);
 
-            // Create both transactions first, then link them to each other by ID.
-            Transaction senderTransaction = new Transaction("inter-user-transfer",
-                    String.format("Inter-user transfer: $%.2f to %s with account name %s",
-                            amount, toUserUsername, otherBankAccount.getName()),
-                    amount, toUserUsername, otherBankAccount.getName(), note);
+        this.withdraw(amount, false);
 
-            Transaction recipientTransaction = new Transaction("inter-user-receipt",
-                    String.format("Inter-user transfer: $%.2f from %s with account name %s",
-                            amount, fromUserUsername, this.getName()),
-                    amount, fromUserUsername, this.getName(), null);
+        Transaction[] transactions = createInterUserTransactions(
+                otherBankAccount, amount, fromUserUsername, toUserUsername);
 
-            senderTransaction.setLinkedId(recipientTransaction.getId());
-            recipientTransaction.setLinkedId(senderTransaction.getId());
-
-            this.transactionHistory.add(senderTransaction);
-            otherBankAccount.deposit(amount, false);
-            otherBankAccount.getHistory().add(recipientTransaction);
-        }
+        applyInterUserTransfer(otherBankAccount, amount, transactions);
     }
 
     public void collectFees(double amount) {
@@ -149,15 +129,15 @@ public class BankAccount {
         amount = roundToTwoDecimals(amount);
         if (amount <= 0) {
             throw new IllegalArgumentException();                
-        } else {
-            this.balance -= amount;
-            if(recordTransaction) {
-                this.transactionHistory.add(new Transaction("fee",
-                        String.format("Fee Collected: $%.2f", amount), amount));
-            }
+        }
+
+        this.balance -= amount;
+        if(recordTransaction) {
+            this.transactionHistory.add(new Transaction("fee",
+                    String.format("Fee Collected: $%.2f", amount), amount));
         }
     }
-   
+
     public void applyInterest(double interestRate) {
         applyInterest(interestRate, true);
     }
@@ -165,23 +145,47 @@ public class BankAccount {
     public void applyInterest(double interestRate, boolean recordTransaction) {
         if (interestRate <= 0 || this.balance < 0) {
             throw new IllegalArgumentException();
-        } else {
-            double rawInterest = this.balance * interestRate;
-            double roundedInterest = roundToTwoDecimals(rawInterest);
-            this.balance += roundedInterest;
-            if(recordTransaction) {
-                this.transactionHistory.add(new Transaction("interest",
-                        String.format("Interest Applied: $%.2f", roundedInterest), roundedInterest));
-            }
+        }
+
+        double rawInterest = this.balance * interestRate;
+        double roundedInterest = roundToTwoDecimals(rawInterest);
+        this.balance += roundedInterest;
+
+        if(recordTransaction) {
+            this.transactionHistory.add(new Transaction("interest",
+                    String.format("Interest Applied: $%.2f", roundedInterest), roundedInterest));
         }
     }
 
+    public void reverseTransfer(BankAccount recipientAcct, String senderUsername, Transaction senderTx) {
+        Transaction recipientTx = findTransactionById(recipientAcct.getHistory(), senderTx.getLinkedId());
+        recipientAcct.withdraw(senderTx.getAmount(), false);
+        this.deposit(senderTx.getAmount(), false);
+        this.transactionHistory.remove(senderTx);
+        if (recipientTx != null) recipientAcct.getHistory().remove(recipientTx);
+        this.transactionHistory.add(new Transaction("void",
+                String.format("VOID (admin): Reversed transfer of $%.2f to %s (%s)",
+                        senderTx.getAmount(),
+                        senderTx.getRelatedUser(),
+                        senderTx.getRelatedAccount()),
+                senderTx.getAmount()));
+        recipientAcct.getHistory().add(new Transaction("void",
+                String.format("VOID (admin): Reversed transfer of $%.2f from %s (%s)",
+                        senderTx.getAmount(),
+                        senderUsername,
+                        this.getName()),
+                senderTx.getAmount()));
+    }
+
+    /*--------------------------------------------------------
+                         Getters / Setters
+    ---------------------------------------------------------*/
     public double getBalance() {
         return this.balance;
     }
 
     public void setBalance(double newBalance) {
-        this.balance = newBalance; //only used for test cases, allows for negative values
+        this.balance = newBalance;
     }
 
     public String getName() {
@@ -196,4 +200,50 @@ public class BankAccount {
         return this.accountType;
     }
 
+    /*--------------------------------------------------------
+                         Helper Methods
+    ---------------------------------------------------------*/
+    private double roundToTwoDecimals(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
+
+    private void validateTransfer(double amount) {
+        if (amount <= 0 || amount > this.balance) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    private Transaction[] createInterUserTransactions(BankAccount otherBankAccount, double amount,
+            String fromUser, String toUser) {
+
+        Transaction senderTransaction = new Transaction("inter-user-transfer",
+                String.format("Inter-user transfer: $%.2f to %s with account name %s",
+                        amount, toUser, otherBankAccount.getName()),
+                amount, toUser, otherBankAccount.getName());
+
+        Transaction recipientTransaction = new Transaction("inter-user-receipt",
+                String.format("Inter-user transfer: $%.2f from %s with account name %s",
+                        amount, fromUser, this.getName()),
+                amount, fromUser, this.getName());
+
+        senderTransaction.setLinkedId(recipientTransaction.getId());
+        recipientTransaction.setLinkedId(senderTransaction.getId());
+
+        return new Transaction[]{senderTransaction, recipientTransaction};
+    }
+
+    private void applyInterUserTransfer(BankAccount otherBankAccount, double amount,
+            Transaction[] transactions) {
+
+        this.transactionHistory.add(transactions[0]);
+        otherBankAccount.deposit(amount, false);
+        otherBankAccount.getHistory().add(transactions[1]);
+    }
+
+    private Transaction findTransactionById(LinkedList<Transaction> history, int id) {
+        for (Transaction t : history) {
+            if (t.getId() == id) return t;
+        }
+        return null;
+    }
 }

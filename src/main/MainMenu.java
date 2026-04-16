@@ -102,7 +102,8 @@ public class MainMenu {
     ---------------------------------------------------------*/
     private void deposit() {
         double amount = getPositiveDouble("Enter deposit amount: ");
-        userAccount.deposit(amount);
+        String note = addNote();
+        userAccount.deposit(amount, note);
     }
 
     private void withdraw() {
@@ -111,7 +112,8 @@ public class MainMenu {
             System.out.println("Insufficient funds. Operation cancelled.");
             return;
         }
-        userAccount.withdraw(amount);
+        String note = addNote();
+        userAccount.withdraw(amount, note);
     }
 
     private void showBalance() {
@@ -140,7 +142,8 @@ public class MainMenu {
         }
 
         double amount = getValidTransferAmount();
-        userAccount.transfer(userAccounts.get(targetName), amount);
+        String note = addNote();
+        userAccount.transfer(userAccounts.get(targetName), amount, note);
     }
 
     private void transferToAnotherUser() {
@@ -153,8 +156,9 @@ public class MainMenu {
         if (recipientAccount == null) return;
 
         double amount = getValidTransferAmount();
+        String note = addNote();
         userAccount.transferBetweenUsers(recipientAccount, amount,
-                currentUser.getUsername(), recipientUser.getUsername());
+                currentUser.getUsername(), recipientUser.getUsername(), note);
     }
 
     private void viewTransactionHistory() {
@@ -167,7 +171,12 @@ public class MainMenu {
 
         System.out.println("Transaction history:");
         for (int i = 0; i < history.size(); i++) {
-            System.out.println((i + 1) + ". " + history.get(i).getDescription());
+            Transaction t = history.get(i);
+            String line = (i + 1) + ". " + t.getDescription();
+            if (t.getNote() != null && !t.getNote().isEmpty()) {
+                line += " [Note: " + t.getNote() + "]";
+            }
+            System.out.println(line);
         }
     }
 
@@ -189,7 +198,7 @@ public class MainMenu {
         }
         for (Transaction t : history)
             if (t.getType().equals(type))
-                System.out.println(t.getDescription());
+                System.out.println(t.getDescription() + (t.getNote() != null ? " [Note: " + t.getNote() + "]" : ""));
     }
 
     private void createAccount() {
@@ -302,6 +311,12 @@ public class MainMenu {
     /*--------------------------------------------------------
                     General Helper Methods
     ---------------------------------------------------------*/
+    private String addNote() {
+        System.out.print("Add a note (optional, press Enter to skip): ");
+        String note = keyboardInput.nextLine().trim();
+        return note.isEmpty() ? null : note;
+    }
+
     private double getPositiveDouble(String prompt) {
         double value;
         do {

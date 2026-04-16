@@ -17,24 +17,26 @@ public class Transaction {
     private final double amount;
     private final String user;
     private final String userAccount;
+    private final String note;
     private int linkedId;
 
     /*--------------------------------------------------------
                           Constructors
     ---------------------------------------------------------*/
     public Transaction(String type, String description, double amount,
-                       String relatedUser, String relatedAccount) {
+                       String relatedUser, String relatedAccount, String note) {
         this.id = nextId++;
         this.type = type;
         this.description = description;
         this.amount = amount;
         this.user = relatedUser;
         this.userAccount = relatedAccount;
+        this.note = note;
         this.linkedId = -1;
     }
 
     public Transaction(String type, String description, double amount) {
-        this(type, description, amount, null, null);
+        this(type, description, amount, null, null, null);
     }
 
     /*--------------------------------------------------------
@@ -57,6 +59,9 @@ public class Transaction {
     }
     public String getRelatedAccount() { 
         return userAccount; 
+    }
+    public String getNote() { 
+        return note; 
     }
     public int getLinkedId() { 
         return linkedId; 

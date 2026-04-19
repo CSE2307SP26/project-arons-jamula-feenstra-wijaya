@@ -10,8 +10,7 @@ public class MainMenu {
                             Constants
     ---------------------------------------------------------*/
     private static final int EXIT_SELECTION = 0;
-    private static final int MAX_SELECTION = 12;
-    private static final int LOW_BALANCE_THRESHOLD = 100;
+    private static final int MAX_SELECTION = 13;
 
     /*--------------------------------------------------------
                             Fields
@@ -52,6 +51,7 @@ public class MainMenu {
         System.out.println("10. Close an account");
         System.out.println("11. Change user password");
         System.out.println("12. Get summary of all accounts");
+        System.out.println("13. Create low balance warning");
         System.out.println("0. Exit back to main menu");
     }
 
@@ -86,6 +86,7 @@ public class MainMenu {
             case 10: closeAccount(); break;
             case 11: changeUserPassword(); break;
             case 12: userAccountsSummary(); break;
+            case 13: setWarningThreshold(); break;
         }
     }
 
@@ -115,7 +116,7 @@ public class MainMenu {
         }
         String note = addNote();
         userAccount.withdraw(amount, note);
-        checkLowBalanceWarning();
+        checkWarning();
     }
 
     private void showBalance() {
@@ -146,7 +147,7 @@ public class MainMenu {
         double amount = getValidTransferAmount();
         String note = addNote();
         userAccount.transfer(userAccounts.get(targetName), amount, note);
-        checkLowBalanceWarning();
+        checkWarning();
     }
 
     private void transferToAnotherUser() {
@@ -162,7 +163,7 @@ public class MainMenu {
         String note = addNote();
         userAccount.transferBetweenUsers(recipientAccount, amount,
                 currentUser.getUsername(), recipientUser.getUsername(), note);
-        checkLowBalanceWarning();
+        checkWarning();
     }
 
     private void viewTransactionHistory() {
@@ -272,6 +273,11 @@ public class MainMenu {
                         ", $" + String.format("%.2f", userAccounts.get(name).getBalance()));
             }
         }
+    }
+
+    private void setWarningThreshold() {
+        double amount = getPositiveDouble("Enter warning threshold:");
+        userAccount.setWarningThreshold(amount);
     }
 
     /*--------------------------------------------------------
@@ -498,9 +504,9 @@ public class MainMenu {
         return accountType.equalsIgnoreCase("Checking") ? "Checking" : "Savings";
     }
 
-    private void checkLowBalanceWarning() {
-        if (userAccount.getBalance() <= LOW_BALANCE_THRESHOLD) {
-            System.out.println("[WARNING] Your balance for account " + userAccount.getName() + " is below $" + LOW_BALANCE_THRESHOLD + "."); 
+    private void checkWarning() {
+        if (userAccount.getBalance() < userAccount.getWarningThreshold()) {
+            System.out.println("[WARNING] Your balance for account " + userAccount.getName() + " is below $" + userAccount.getWarningThreshold() + "."); 
             showBalance();
         }
     }

@@ -41,7 +41,7 @@
 8. A user should be able to undo their most recent transaction. (Harrison)
 
 ## Is there anything that you implemented but doesn't currently work?
-For the inter-user transfer transactions, the void action works if you select the sending username and sending account, but it seems to break when selecting the receiving username and corresponding receiving account.
+N/A
 
 ## What commands are needed to compile and run your code from the command line?
 1. cd into project-arons-jamula-feenstra-wijaya

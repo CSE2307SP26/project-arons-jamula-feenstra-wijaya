@@ -11,6 +11,7 @@ public class MainMenu {
     ---------------------------------------------------------*/
     private static final int EXIT_SELECTION = 0;
     private static final int MAX_SELECTION = 12;
+    private static final int LOW_BALANCE_THRESHOLD = 100;
 
     /*--------------------------------------------------------
                             Fields
@@ -114,6 +115,7 @@ public class MainMenu {
         }
         String note = addNote();
         userAccount.withdraw(amount, note);
+        checkLowBalanceWarning();
     }
 
     private void showBalance() {
@@ -144,6 +146,7 @@ public class MainMenu {
         double amount = getValidTransferAmount();
         String note = addNote();
         userAccount.transfer(userAccounts.get(targetName), amount, note);
+        checkLowBalanceWarning();
     }
 
     private void transferToAnotherUser() {
@@ -159,6 +162,7 @@ public class MainMenu {
         String note = addNote();
         userAccount.transferBetweenUsers(recipientAccount, amount,
                 currentUser.getUsername(), recipientUser.getUsername(), note);
+        checkLowBalanceWarning();
     }
 
     private void viewTransactionHistory() {
@@ -492,5 +496,12 @@ public class MainMenu {
                 !accountType.equalsIgnoreCase("Savings"));
 
         return accountType.equalsIgnoreCase("Checking") ? "Checking" : "Savings";
+    }
+
+    private void checkLowBalanceWarning() {
+        if (userAccount.getBalance() <= LOW_BALANCE_THRESHOLD) {
+            System.out.println("[WARNING] Your balance for account " + userAccount.getName() + " is below $" + LOW_BALANCE_THRESHOLD + "."); 
+            showBalance();
+        }
     }
 }

@@ -506,7 +506,7 @@ public class MainMenu {
 
     private void checkWarning() {
         if (userAccount.getBalance() < userAccount.getWarningThreshold()) {
-            System.out.println("[WARNING] Your balance for account " + userAccount.getName() + " is below $" + userAccount.getWarningThreshold() + "."); 
+            System.out.println(String.format("[WARNING] Your balance for account %s is below $%.2f.", userAccount.getName(), userAccount.getWarningThreshold())); 
             showBalance();
         }
     }

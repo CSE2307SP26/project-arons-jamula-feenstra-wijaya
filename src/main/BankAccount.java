@@ -11,6 +11,7 @@ public class BankAccount {
     private String name;
     private LinkedList<Transaction> transactionHistory;
     private String accountType;
+    private double warningThreshold;
 
     /*--------------------------------------------------------
                           Constructors
@@ -23,7 +24,7 @@ public class BankAccount {
     }
 
     public BankAccount(String name) {
-        this(name, "Savings");
+        this(name, "Savings"); //accounts are savings accounts by default
     }
 
     /*--------------------------------------------------------
@@ -203,6 +204,15 @@ public class BankAccount {
 
     public String getAccountType() {
         return this.accountType;
+    }
+
+    public double getWarningThreshold() {
+        return this.warningThreshold;
+    }
+
+    public void setWarningThreshold(double amount) {
+        amount = roundToTwoDecimals(amount);
+        this.warningThreshold = amount;
     }
 
     /*--------------------------------------------------------

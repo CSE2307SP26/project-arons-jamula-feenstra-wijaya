@@ -1,5 +1,8 @@
 package main;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 // Supports transaction history with detailed information
 public class Transaction {
 
@@ -7,6 +10,8 @@ public class Transaction {
                             Constants
     ---------------------------------------------------------*/
     private static int nextId = 1;
+    private static final DateTimeFormatter TIMESTAMP_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /*--------------------------------------------------------
                             Fields
@@ -19,6 +24,7 @@ public class Transaction {
     private final String userAccount;
     private final String note;
     private int linkedId;
+    private final LocalDateTime timestamp;
 
     /*--------------------------------------------------------
                           Constructors
@@ -33,6 +39,7 @@ public class Transaction {
         this.userAccount = relatedAccount;
         this.note = note;
         this.linkedId = -1;
+        this.timestamp = LocalDateTime.now();
     }
 
     public Transaction(String type, String description, double amount) {
@@ -63,8 +70,11 @@ public class Transaction {
     public String getNote() { 
         return note; 
     }
-    public int getLinkedId() { 
-        return linkedId; 
+    public int getLinkedId() {
+        return linkedId;
+    }
+    public String getTimestamp() {
+        return timestamp.format(TIMESTAMP_FORMAT);
     }
 
     /*--------------------------------------------------------

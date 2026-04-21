@@ -1,5 +1,7 @@
 package main;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -10,7 +12,7 @@ public class MainMenu {
                             Constants
     ---------------------------------------------------------*/
     private static final int EXIT_SELECTION = 0;
-    private static final int MAX_SELECTION = 13;
+    private static final int MAX_SELECTION = 14;
 
     /*--------------------------------------------------------
                             Fields
@@ -52,6 +54,7 @@ public class MainMenu {
         System.out.println("11. Change user password");
         System.out.println("12. Get summary of all accounts");
         System.out.println("13. Create low balance warning");
+        System.out.println("14. Export transaction history to file");
         System.out.println("0. Exit back to main menu");
     }
 
@@ -87,6 +90,7 @@ public class MainMenu {
             case 11: changeUserPassword(); break;
             case 12: userAccountsSummary(); break;
             case 13: setWarningThreshold(); break;
+            case 14: exportTransactionHistory(); break;
         }
     }
 
@@ -280,9 +284,30 @@ public class MainMenu {
         userAccount.setWarningThreshold(amount);
     }
 
+    private void exportTransactionHistory() {
+        LinkedList<Transaction> history = userAccount.getHistory();
+        if (history.isEmpty()) {
+            System.out.println("No transactions to export.");
+            return;
+        }
+        String filename = currentUser.getUsername() + "_" + userAccount.getName() + "_transactions.txt";
+        try (FileWriter writer = new FileWriter(filename)) {
+            writer.write("Transaction History\n");
+            writer.write("User: " + currentUser.getUsername() + "\n");
+            writer.write("Account: " + userAccount.getName() + "\n");
+            writer.write("=".repeat(40) + "\n");
+            for (int i = 0; i < history.size(); i++)
+                writer.write(formatTransaction(i, history.get(i)) + "\n");
+            System.out.println("Transaction history exported to: " + filename);
+        } catch (IOException e) {
+            System.out.println("Failed to export transaction history: " + e.getMessage());
+        }
+    }
+
     /*--------------------------------------------------------
                         Transfer Helpers
     ---------------------------------------------------------*/
+
     private User getRecipientUser() {
         System.out.print("Enter recipient's username (or type 'cancel' to cancel): ");
         String recipientUsername = keyboardInput.nextLine().trim();
@@ -321,6 +346,14 @@ public class MainMenu {
     /*--------------------------------------------------------
                     General Helper Methods
     ---------------------------------------------------------*/
+    private String formatTransaction(int index, Transaction t) {
+        String line = (index + 1) + ". [" + t.getTimestamp() + "] " + t.getDescription();
+        if (t.getNote() != null && !t.getNote().isEmpty()) {
+            line += " [Note: " + t.getNote() + "]";
+        }
+        return line;
+    }
+    
     private String addNote() {
         System.out.print("Add a note (optional, press Enter to skip): ");
         String note = keyboardInput.nextLine().trim();

@@ -146,7 +146,7 @@ public class AdminMenu {
             System.out.println("Please use 'Void inter-user transfer' from the admin menu.");
             return;
         }
-        processInputTxType(recentTransaction.getType());
+        processInputTransaction(recentTransaction);
         return;
     }
 
@@ -185,8 +185,8 @@ public class AdminMenu {
                     Undo Recent Transaction Helpers
     ---------------------------------------------------------*/
 
-    private void processInputTxType(String txType) {
-        switch (txType) {
+    private void processInputTransaction(Transaction tx) {
+        switch (tx.getType()) {
             case "deposit": break;
             case "withdraw": break;
             case "transfer": break;

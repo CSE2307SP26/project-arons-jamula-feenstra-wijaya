@@ -61,7 +61,7 @@ public class AdminMenu {
             case 1: collectFees(); break;
             case 2: applyInterest(); break;
             case 3: listAccounts(); break;
-            case 4: voidTransaction(); break;
+            case 4: voidTransfer(); break;
             case 5: unlockUserAccount(); break;
         }
     }
@@ -136,12 +136,26 @@ public class AdminMenu {
         }
     }
 
-    private void voidTransaction() {
+    private void voidRecentTransaction() {
         User selectedUser = promptForUser();
         if (selectedUser == null) return;
         BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
         if (selectedAcct == null) return;
-        Transaction transactionToVoid = pickTransaction(selectedAcct, selectedUser.getUsername());
+        Transaction recentTransaction = selectedAcct.getHistory().getLast();
+        if (recentTransaction.getType().equals("inter-user-transfer") || recentTransaction.getType().equals("inter-user-receipt")) {
+            System.out.println("Please use 'Void inter-user transfer' from the admin menu.");
+            return;
+        }
+        processInputTxType(recentTransaction.getType());
+        return;
+    }
+
+    private void voidTransfer() {
+        User selectedUser = promptForUser();
+        if (selectedUser == null) return;
+        BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
+        if (selectedAcct == null) return;
+        Transaction transactionToVoid = pickTransfer(selectedAcct, selectedUser.getUsername());
         if (transactionToVoid == null) return;
         BankAccount[] roles = resolveVoidAccounts(selectedAcct, transactionToVoid);
         if (roles == null) return;
@@ -168,6 +182,23 @@ public class AdminMenu {
     }
 
     /*--------------------------------------------------------
+                    Undo Recent Transaction Helpers
+    ---------------------------------------------------------*/
+
+    private void processInputTxType(String txType) {
+        switch (txType) {
+            case "deposit": break;
+            case "withdraw": break;
+            case "transfer": break;
+            case "received": break;
+            case "inter-user-transfer": break;
+            case "inter-user-receipt": break;
+            case "fee": break;
+            case "interest": break;
+        }
+    }
+
+    /*--------------------------------------------------------
                     Void Transaction Helpers
     ---------------------------------------------------------*/
     private BankAccount[] resolveVoidAccounts(BankAccount selectedAcct, Transaction tx) {
@@ -190,7 +221,7 @@ public class AdminMenu {
         return null;
     }
 
-    private Transaction pickTransaction(BankAccount account, String username) {
+    private Transaction pickTransfer(BankAccount account, String username) {
         LinkedList<Transaction> interUserTxs = new LinkedList<>();
         for (Transaction t : account.getHistory()) {
             if (t.getType().equals("inter-user-transfer") || t.getType().equals("inter-user-receipt")) {

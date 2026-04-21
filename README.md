@@ -38,7 +38,7 @@
 5. A user should be able to export their transaction history to a text file. (Andrew)
 6. A user should be charged a small fee when transferring funds between accounts. (Natalia)
 7. A user should be able to add a note to each of their transactions. (Cliff)
-8. A user should be able to undo their most recent transaction. (Harrison)
+8. An admin should be able to undo an account's most recent transaction. (Harrison)
 
 ## Is there anything that you implemented but doesn't currently work?
 N/A

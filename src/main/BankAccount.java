@@ -170,7 +170,11 @@ public class BankAccount {
         if (tx.getType().equals("withdraw") || tx.getType().equals("fee")) {
             this.balance += tx.getAmount();
         }
-        this.transactionHistory.remove(tx);
+        this.transactionHistory.add(new Transaction("undo", 
+                String.format("UNDO (admin): Reversed %s of %.2f", 
+                        tx.getType(), 
+                        tx.getAmount()), 
+                tx.getAmount()));
     }
 
     public void reverseTransfer(BankAccount recipientAcct, String senderUsername, Transaction senderTx) {

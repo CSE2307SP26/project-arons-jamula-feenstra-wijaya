@@ -143,11 +143,11 @@ public class AdminMenu {
         if (selectedUser == null) return;
         BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
         if (selectedAcct == null) return;
-        Transaction recentTransaction = selectedAcct.getHistory().getLast();
-        if (recentTransaction.getType().equals("inter-user-transfer") || recentTransaction.getType().equals("inter-user-receipt")) {
-            System.out.println("Please use 'Void inter-user transfer' from the admin menu.");
+        if (selectedAcct.getHistory().isEmpty()) {
+            System.out.println("There are no recent transactions to undo.");
             return;
         }
+        Transaction recentTransaction = selectedAcct.getHistory().getLast();
         processInputUndoTransaction(selectedUser, selectedAcct, recentTransaction);
         return;
     }
@@ -193,11 +193,12 @@ public class AdminMenu {
             case "withdraw": selectedAcct.undoTransaction(tx); break;
             case "fee": selectedAcct.undoTransaction(tx); break;
             case "interest": selectedAcct.undoTransaction(tx); break;
-            case "transfer": break;
-            case "received": break;
-            case "inter-user-transfer": break;
-            case "inter-user-receipt": break;
-            case "void": break;
+            case "transfer": System.out.println("Transfers between two accounts of the same user can not be undone as of now."); break;
+            case "received": System.out.println("Transfers between two accounts of the same user can not be undone as of now."); break;
+            case "inter-user-transfer": System.out.println("Please use the 'Void inter-user transfer' function in the admin menu."); break;
+            case "inter-user-receipt": System.out.println("Please use the 'Void inter-user transfer' function in the admin menu."); break;
+            case "void": System.out.println("Can not undo a voided transaction."); break;
+            case "undo": System.out.println("Can not undo an undone transaction."); break;
         }
     }
 

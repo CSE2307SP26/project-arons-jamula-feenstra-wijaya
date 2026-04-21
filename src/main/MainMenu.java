@@ -177,7 +177,7 @@ public class MainMenu {
         System.out.println("Transaction history:");
         for (int i = 0; i < history.size(); i++) {
             Transaction t = history.get(i);
-            String line = (i + 1) + ". " + t.getDescription();
+            String line = (i + 1) + ". [" + t.getTimestamp() + "] " + t.getDescription();
             if (t.getNote() != null && !t.getNote().isEmpty()) {
                 line += " [Note: " + t.getNote() + "]";
             }
@@ -203,7 +203,7 @@ public class MainMenu {
         }
         for (Transaction t : history)
             if (t.getType().equals(type))
-                System.out.println(t.getDescription() + (t.getNote() != null ? " [Note: " + t.getNote() + "]" : ""));
+                System.out.println("[" + t.getTimestamp() + "] " + t.getDescription() + (t.getNote() != null ? " [Note: " + t.getNote() + "]" : ""));
     }
 
     private void createAccount() {

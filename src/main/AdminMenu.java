@@ -34,8 +34,9 @@ public class AdminMenu {
         System.out.println("1. Collect fees");
         System.out.println("2. Apply interest");
         System.out.println("3. List all accounts");
-        System.out.println("4. Void inter-user transfer");
-        System.out.println("5. Unlock user account");
+        System.out.println("4. Undo most recent transaction");
+        System.out.println("5. Void inter-user transfer");
+        System.out.println("6. Unlock user account");
         System.out.println("0. Exit the app");
     }
 
@@ -61,8 +62,9 @@ public class AdminMenu {
             case 1: collectFees(); break;
             case 2: applyInterest(); break;
             case 3: listAccounts(); break;
-            case 4: voidTransfer(); break;
-            case 5: unlockUserAccount(); break;
+            case 4: undoRecentTransaction(); break;
+            case 5: voidTransfer(); break;
+            case 6: unlockUserAccount(); break;
         }
     }
 
@@ -136,7 +138,7 @@ public class AdminMenu {
         }
     }
 
-    private void voidRecentTransaction() {
+    private void undoRecentTransaction() {
         User selectedUser = promptForUser();
         if (selectedUser == null) return;
         BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
@@ -146,7 +148,7 @@ public class AdminMenu {
             System.out.println("Please use 'Void inter-user transfer' from the admin menu.");
             return;
         }
-        processInputTransaction(recentTransaction);
+        processInputUndoTransaction(selectedUser, selectedAcct, recentTransaction);
         return;
     }
 
@@ -185,16 +187,17 @@ public class AdminMenu {
                     Undo Recent Transaction Helpers
     ---------------------------------------------------------*/
 
-    private void processInputTransaction(Transaction tx) {
+    private void processInputUndoTransaction(User selectedUser, BankAccount selectedAcct, Transaction tx) {
         switch (tx.getType()) {
-            case "deposit": break;
-            case "withdraw": break;
+            case "deposit": selectedAcct.undoTransaction(tx); break;
+            case "withdraw": selectedAcct.undoTransaction(tx); break;
+            case "fee": selectedAcct.undoTransaction(tx); break;
+            case "interest": selectedAcct.undoTransaction(tx); break;
             case "transfer": break;
             case "received": break;
             case "inter-user-transfer": break;
             case "inter-user-receipt": break;
-            case "fee": break;
-            case "interest": break;
+            case "void": break;
         }
     }
 

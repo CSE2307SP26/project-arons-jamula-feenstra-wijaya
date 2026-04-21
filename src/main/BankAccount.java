@@ -163,6 +163,16 @@ public class BankAccount {
         }
     }
 
+    public void undoTransaction(Transaction tx) {
+        if (tx.getType().equals("deposit") || tx.getType().equals("interest")) {
+            this.balance -= tx.getAmount();
+        }
+        if (tx.getType().equals("withdraw") || tx.getType().equals("fee")) {
+            this.balance += tx.getAmount();
+        }
+        this.transactionHistory.remove(tx);
+    }
+
     public void reverseTransfer(BankAccount recipientAcct, String senderUsername, Transaction senderTx) {
         Transaction recipientTx = findTransactionById(recipientAcct.getHistory(), senderTx.getLinkedId());
         recipientAcct.withdraw(senderTx.getAmount(), false);

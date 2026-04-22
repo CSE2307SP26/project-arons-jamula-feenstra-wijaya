@@ -1,12 +1,14 @@
 package main;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class BankApplication {
 
     private HashMap<String, BankAccount> sharedAccountsMap;
     private HashMap<String, User> userDatabase;
+    private LinkedList<Audit> auditHistory;
     private Scanner keyboardInput;
     private static final int EXIT_SELECTION = 0;
 	private static final int MAX_SELECTION = 3;
@@ -17,6 +19,7 @@ public class BankApplication {
         this.sharedAccountsMap = new HashMap<>();
         this.sharedAccountsMap.put("default", new BankAccount("default", "Savings"));
         this.userDatabase = new HashMap<>();
+        this.auditHistory = new LinkedList<>();
         this.keyboardInput = new Scanner(System.in);
     }
 
@@ -119,7 +122,7 @@ public class BankApplication {
 
         if (username.equals(ADMIN_USERNAME) && password.equals(ADMIN_PASSWORD)) {
             System.out.println("\n--- Admin Login Successful ---");
-            AdminMenu adminMenu = new AdminMenu(userDatabase);
+            AdminMenu adminMenu = new AdminMenu(userDatabase, auditHistory);
             adminMenu.run();
         } else {
             System.out.println("Invalid admin credentials. Try again.");

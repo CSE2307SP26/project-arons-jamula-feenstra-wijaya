@@ -7,120 +7,113 @@ import java.util.Scanner;
 public class AdminMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 5;
+    private static final int MAX_SELECTION = 6;
 
     private Scanner keyboardInput;
-    
-    private HashMap<String, User> userDatabase; // HashMap that stores all users and their accounts
+    private HashMap<String, User> userDatabase;
+    private LinkedList<Audit> auditHistory;
 
     public AdminMenu(HashMap<String, User> userDatabase) {
+        this(userDatabase, new LinkedList<>());
+    }
+
+    public AdminMenu(HashMap<String, User> userDatabase, LinkedList<Audit> auditHistory) {
         this.userDatabase = userDatabase;
+        this.auditHistory = auditHistory;
         this.keyboardInput = new Scanner(System.in);
     }
 
-    public void displayOptions() {  
+    public void displayOptions() {
         System.out.println("\nWelcome to the 2307 Bank App! --- ADMIN ---");
-        
         System.out.println("1. Collect fees");
         System.out.println("2. Apply interest");
         System.out.println("3. List all accounts");
         System.out.println("4. Void inter-user transfer");
         System.out.println("5. Unlock user account");
+        System.out.println("6. View audit history");
         System.out.println("0. Exit the app");
-
     }
 
     public int getUserSelection(int max) {
         int selection = -1;
-        while(selection < 0 || selection > max) {
+        while (selection < 0 || selection > max) {
             System.out.print("Please make a selection: ");
             while (!keyboardInput.hasNextInt()) {
                 System.out.println("Invalid input.");
                 keyboardInput.next();
             }
             selection = keyboardInput.nextInt();
-            if(selection < 0 || selection > max) {
+            if (selection < 0 || selection > max) {
                 System.out.println("Invalid selection. Try again.");
             }
-            keyboardInput.nextLine(); // clear buffer
+            keyboardInput.nextLine();
         }
         return selection;
     }
 
     public void processInput(int selection) {
         switch (selection) {
-            case 1:
-                collectFees();
-                break;
-            case 2:
-                applyInterest();
-                break;
-            case 3:
-                listAccounts();
-                break;
-            case 4:
-                voidTransaction();
-                break;
-            case 5:
-                unlockUserAccount();
-                break;
+            case 1: collectFees();        break;
+            case 2: applyInterest();      break;
+            case 3: listAccounts();       break;
+            case 4: voidTransaction();    break;
+            case 5: unlockUserAccount();  break;
+            case 6: viewAuditHistory();   break;
         }
     }
 
-    /*--------------------------------------------------------
-                            Core Actions
-    ---------------------------------------------------------*/
-
     public void collectFees() {
         User user = promptForUser();
-        if(user == null) return;
+        if (user == null) return;
 
         BankAccount account = promptForUserAccount(user, "collect fees from");
-        if(account == null) return;
+        if (account == null) return;
 
         double amount = getPositiveDouble("Enter fee amount to collect: ");
 
-        if(amount > account.getBalance()) {
+        if (amount > account.getBalance()) {
             System.out.println("Amount exceeds account balance. Fee collection cancelled.");
             return;
         }
 
         account.collectFees(amount);
+        auditHistory.add(new Audit("FEE_COLLECTED", user.getUsername(), account.getName(),
+                String.format("Collected $%.2f in fees. New balance: $%.2f", amount, account.getBalance())));
         System.out.println("Collected $" + amount + " in fees from " + account.getName() + ".");
     }
 
     public void applyInterest() {
         User user = promptForUser();
-        if(user == null) return;
+        if (user == null) return;
 
         BankAccount account = promptForUserAccount(user, "apply interest to");
-        if(account == null) return;
+        if (account == null) return;
 
-        if (!account.getAccountType().equals("Savings")){
+        if (!account.getAccountType().equals("Savings")) {
             System.out.println("Action Denied: Interest can only be applied to Savings Accounts.");
             return;
         }
+
         double interestRate = getPositiveDouble("Enter interest rate to apply (in %): ");
 
         account.applyInterest(interestRate / 100);
+        auditHistory.add(new Audit("INTEREST_APPLIED", user.getUsername(), account.getName(),
+                String.format("Applied %.2f%% interest. New balance: $%.2f", interestRate, account.getBalance())));
         System.out.println("Applied " + interestRate + "% interest to " + account.getName() + ".");
-
     }
 
     public void listAccounts() {
-        if(userDatabase.isEmpty()) {
+        if (userDatabase.isEmpty()) {
             System.out.println("No users registered yet.");
             return;
         }
         System.out.println("\n=== All Users and Their Accounts ===");
-        for(String username : userDatabase.keySet()) {
+        for (String username : userDatabase.keySet()) {
             User user = userDatabase.get(username);
             System.out.println("\nUser: " + username);
-            HashMap<String, BankAccount> accounts = user.getAllAccounts();
-            for(String accountName : accounts.keySet()) {
-                BankAccount account = accounts.get(accountName);
+            for (BankAccount account : user.getAllAccounts().values()) {
                 double balance = account.getBalance();
-                if(balance < 0) {
+                if (balance < 0) {
                     System.out.println("  - " + account.getName() + ": -$" + String.format("%.2f", Math.abs(balance)));
                 } else {
                     System.out.println("  - " + account.getName() + ": $" + String.format("%.2f", balance));
@@ -207,7 +200,6 @@ public class AdminMenu {
         return recipientAccounts.get(recipientAccountName);
     }
 
-    // Run balance check on recipient account
     private boolean canReverseTransfer(BankAccount recipientAcct, double amount) {
         if (recipientAcct.getBalance() + 1e-9 < amount) {
             System.out.println("Recipient balance is too low to reverse this transfer. Void cancelled.");
@@ -235,6 +227,11 @@ public class AdminMenu {
                 String.format("VOID (admin): Reversed inter-user transfer of $%.2f from %s with account name %s",
                         transactionToVoid.getAmount(), senderUsername, senderAcct.getName()),
                 transactionToVoid.getAmount()));
+
+        auditHistory.add(new Audit("TRANSFER_VOIDED", senderUsername, senderAcct.getName(),
+                String.format("Voided $%.2f inter-user transfer to %s (%s). Balances restored.",
+                        transactionToVoid.getAmount(), transactionToVoid.getRelatedUser(),
+                        transactionToVoid.getRelatedAccount())));
     }
 
     private Transaction findTransactionById(LinkedList<Transaction> history, int id) {
@@ -252,13 +249,24 @@ public class AdminMenu {
             System.out.println("User '" + user.getUsername() + "' is not currently locked.");
             return;
         }
+
         user.unlockAccount();
+        auditHistory.add(new Audit("ACCOUNT_UNLOCKED", user.getUsername(), "N/A",
+                "Unlocked after too many failed login attempts. Failed attempt counter reset."));
         System.out.println("User '" + user.getUsername() + "' has been unlocked and their failed attempts have been reset.");
     }
 
-    /*--------------------------------------------------------
-                            Helper Methods
-    ---------------------------------------------------------*/
+    private void viewAuditHistory() {
+        if (auditHistory.isEmpty()) {
+            System.out.println("No audit history.");
+            return;
+        }
+        System.out.println("\n=== Admin Audit History ===");
+        for (Audit audit : auditHistory) {
+            System.out.println(audit.getId() + ". [" + audit.getAction() + "] User: " + audit.getTargetUser()
+                    + " | Account: " + audit.getTargetAccount() + " | " + audit.getDetails());
+        }
+    }
 
     private double getPositiveDouble(String prompt) {
         double value;
@@ -269,9 +277,8 @@ public class AdminMenu {
                 keyboardInput.next();
             }
             value = keyboardInput.nextDouble();
-            keyboardInput.nextLine(); // clear buffer
-            
-            if(value <= 0) {
+            keyboardInput.nextLine();
+            if (value <= 0) {
                 System.out.println("Amount must be positive. Try again.");
             }
         } while (value <= 0);
@@ -283,16 +290,13 @@ public class AdminMenu {
         do {
             System.out.print("Enter username (or type 'cancel' to cancel): ");
             username = keyboardInput.nextLine().trim();
-
-            if(username.equalsIgnoreCase("cancel")) {
+            if (username.equalsIgnoreCase("cancel")) {
                 System.out.println("Cancelled.");
                 return null;
             }
-
-            if(!userDatabase.containsKey(username)) {
+            if (!userDatabase.containsKey(username)) {
                 System.out.println("User not found. Please try again.");
             }
-
         } while (!userDatabase.containsKey(username));
         return userDatabase.get(username);
     }
@@ -303,27 +307,20 @@ public class AdminMenu {
         do {
             System.out.print("Enter account name to " + actionName + " (or type 'cancel' to cancel): ");
             accountName = keyboardInput.nextLine().trim();
-
-            if(accountName.equalsIgnoreCase("cancel")) {
+            if (accountName.equalsIgnoreCase("cancel")) {
                 System.out.println(actionName + " cancelled.");
                 return null;
             }
-
-            if(!accounts.containsKey(accountName)) {
+            if (!accounts.containsKey(accountName)) {
                 System.out.println("Account not found. Try again.");
             }
-
         } while (!accounts.containsKey(accountName));
-        BankAccount account = accounts.get(accountName);
-        return account;
+        return accounts.get(accountName);
     }
 
-    /*--------------------------------------------------------
-                            Main Loop
-    ---------------------------------------------------------*/
     public void run() {
         int selection = -1;
-        while(selection != EXIT_SELECTION) {
+        while (selection != EXIT_SELECTION) {
             displayOptions();
             selection = getUserSelection(MAX_SELECTION);
             processInput(selection);

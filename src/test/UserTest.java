@@ -18,6 +18,17 @@ public class UserTest {
     }
 
     @Test
+    public void testLoginLockout() {
+        User testUser = new User("test", "correctpassword");
+        testUser.login("wrongpassword1");
+        testUser.login("wrongpassword2");
+        testUser.login("wrongpassword3");
+        assertEquals(false, testUser.login("correctpassword"));
+        testUser.unlockAccount();
+        assertEquals(true, testUser.login("correctpassword"));
+    }
+
+    @Test
     public void testAddAndGetAccount() {
         User testUser = new User("test", "password");
         BankAccount testAccount = new BankAccount("test account");

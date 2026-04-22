@@ -1,6 +1,7 @@
 package test;
 
 import main.BankAccount;
+import main.Transaction;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -164,8 +165,62 @@ public class BankAccountTest {
         testAccount.withdraw(30);
         testAccount.deposit(50);
         assertEquals(3, testAccount.getHistory().size());
-        assertEquals("Deposit: $100.00", testAccount.getHistory().get(0));
-        assertEquals("Withdraw: $30.00", testAccount.getHistory().get(1));
-        assertEquals("Deposit: $50.00", testAccount.getHistory().get(2));
+        assertEquals("Deposit: $100.00", testAccount.getHistory().get(0).getDescription());
+        assertEquals("Withdraw: $30.00", testAccount.getHistory().get(1).getDescription());
+        assertEquals("Deposit: $50.00", testAccount.getHistory().get(2).getDescription());
+    }
+
+    @Test
+    public void testTransferBetweenUsersBalances() {
+        BankAccount sender = new BankAccount("sender");
+        BankAccount recipient = new BankAccount("recipient");
+        sender.setBalance(100);
+        sender.transferBetweenUsers(recipient, 40, "alice", "bob");
+
+        assertEquals(60, sender.getBalance(), 0.01);
+        assertEquals(40, recipient.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testTransferBetweenUsersRecordsHistory() {
+        BankAccount sender = new BankAccount("sender");
+        BankAccount recipient = new BankAccount("recipient");
+        sender.setBalance(100);
+        sender.transferBetweenUsers(recipient, 40, "alice", "bob");
+
+        assertEquals(1, sender.getHistory().size());
+        assertEquals(1, recipient.getHistory().size());
+        assertEquals("inter-user-transfer", sender.getHistory().get(0).getType());
+        assertEquals("inter-user-receipt", recipient.getHistory().get(0).getType());
+    }
+
+    @Test
+    public void testVoidRestoresBalances() {
+        BankAccount aliceAcct = new BankAccount("alice");
+        BankAccount bobAcct = new BankAccount("bob");
+        aliceAcct.setBalance(100);
+        aliceAcct.transferBetweenUsers(bobAcct, 40, "alice", "bob");
+
+        Transaction senderTx = aliceAcct.getHistory().get(0);
+        aliceAcct.reverseTransfer(bobAcct, "alice", senderTx);
+
+        assertEquals(100, aliceAcct.getBalance(), 0.01);
+        assertEquals(0, bobAcct.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testVoidReplacesHistoryEntries() {
+        BankAccount aliceAcct = new BankAccount("alice");
+        BankAccount bobAcct = new BankAccount("bob");
+        aliceAcct.setBalance(100);
+        aliceAcct.transferBetweenUsers(bobAcct, 40, "alice", "bob");
+
+        Transaction senderTx = aliceAcct.getHistory().get(0);
+        aliceAcct.reverseTransfer(bobAcct, "alice", senderTx);
+
+        assertEquals(1, aliceAcct.getHistory().size());
+        assertEquals("void", aliceAcct.getHistory().get(0).getType());
+        assertEquals(1, bobAcct.getHistory().size());
+        assertEquals("void", bobAcct.getHistory().get(0).getType());
     }
 }

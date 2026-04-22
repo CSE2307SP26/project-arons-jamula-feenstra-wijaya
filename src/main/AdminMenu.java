@@ -1,30 +1,43 @@
 package main;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class AdminMenu {
 
+    /*--------------------------------------------------------
+                            Constants
+    ---------------------------------------------------------*/
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 4;
+    private static final int MAX_SELECTION = 5;
 
+    /*--------------------------------------------------------
+                            Fields
+    ---------------------------------------------------------*/
     private Scanner keyboardInput;
-    
-    private HashMap<String, User> userDatabase; // HashMap that stores all users and their accounts
+    private HashMap<String, User> userDatabase;
 
+    /*--------------------------------------------------------
+                          Constructor
+    ---------------------------------------------------------*/
     public AdminMenu(HashMap<String, User> userDatabase) {
         this.userDatabase = userDatabase;
         this.keyboardInput = new Scanner(System.in);
     }
 
+    /*--------------------------------------------------------
+                        Menu / Navigation
+    ---------------------------------------------------------*/
     public void displayOptions() {  
         System.out.println("\nWelcome to the 2307 Bank App! --- ADMIN ---");
-        
         System.out.println("1. Collect fees");
         System.out.println("2. Apply interest");
         System.out.println("3. List all accounts");
+        System.out.println("4. Undo most recent transaction");
+        System.out.println("5. Void inter-user transfer");
+        System.out.println("6. Unlock user account");
         System.out.println("0. Exit the app");
-
     }
 
     public int getUserSelection(int max) {
@@ -39,34 +52,39 @@ public class AdminMenu {
             if(selection < 0 || selection > max) {
                 System.out.println("Invalid selection. Try again.");
             }
-            keyboardInput.nextLine(); // clear buffer
+            keyboardInput.nextLine();
         }
         return selection;
     }
 
     public void processInput(int selection) {
         switch (selection) {
-            case 1:
-                collectFees();
-                break;
-            case 2:
-                applyInterest();
-                break;
-            case 3:
-                listAccounts();
-                break;
+            case 1: collectFees(); break;
+            case 2: applyInterest(); break;
+            case 3: listAccounts(); break;
+            case 4: undoRecentTransaction(); break;
+            case 5: voidTransfer(); break;
+            case 6: unlockUserAccount(); break;
+        }
+    }
+
+    public void run() {
+        int selection = -1;
+        while(selection != EXIT_SELECTION) {
+            displayOptions();
+            selection = getUserSelection(MAX_SELECTION);
+            processInput(selection);
         }
     }
 
     /*--------------------------------------------------------
                             Core Actions
     ---------------------------------------------------------*/
-
     public void collectFees() {
         User user = promptForUser();
         if(user == null) return;
 
-        BankAccount account = promptForAccountFromUser(user, "collect fees from");
+        BankAccount account = promptForUserAccount(user, "collect fees from");
         if(account == null) return;
 
         double amount = getPositiveDouble("Enter fee amount to collect: ");
@@ -84,12 +102,17 @@ public class AdminMenu {
         User user = promptForUser();
         if(user == null) return;
 
-        BankAccount account = promptForAccountFromUser(user, "apply interest to");
+        BankAccount account = promptForUserAccount(user, "apply interest to");
         if(account == null) return;
 
-        double interestRate = getPositiveDouble("Enter interest rate to apply (in %): ");
+        if (!account.getAccountType().equals("Savings")){
+            System.out.println("Action Denied: Interest can only be applied to Savings Accounts.");
+            return;
+        }
 
+        double interestRate = getPositiveDouble("Enter interest rate to apply (in %): ");
         account.applyInterest(interestRate / 100);
+
         System.out.println("Applied " + interestRate + "% interest to " + account.getName() + ".");
     }
 
@@ -115,10 +138,158 @@ public class AdminMenu {
         }
     }
 
+    private void undoRecentTransaction() {
+        User selectedUser = promptForUser();
+        if (selectedUser == null) return;
+        BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
+        if (selectedAcct == null) return;
+        if (selectedAcct.getHistory().isEmpty()) {
+            System.out.println("There are no recent transactions to undo.");
+            return;
+        }
+        Transaction recentTransaction = selectedAcct.getHistory().getLast();
+        processInputUndoTransaction(selectedUser, selectedAcct, recentTransaction);
+        return;
+    }
+
+    private void voidTransfer() {
+        User selectedUser = promptForUser();
+        if (selectedUser == null) return;
+        BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
+        if (selectedAcct == null) return;
+        Transaction transactionToVoid = pickTransfer(selectedAcct, selectedUser.getUsername());
+        if (transactionToVoid == null) return;
+        BankAccount[] roles = resolveVoidAccounts(selectedAcct, transactionToVoid);
+        if (roles == null) return;
+        Transaction senderTx = resolveSenderTx(transactionToVoid, roles[0]);
+        if (senderTx == null) return;
+        if (!canReverseTransfer(roles[1], senderTx.getAmount())) return;
+        String senderUsername = transactionToVoid.getType().equals("inter-user-transfer")
+                ? selectedUser.getUsername() : transactionToVoid.getRelatedUser();
+        roles[0].reverseTransfer(roles[1], senderUsername, senderTx);
+        System.out.println("Transfer voided; balances and histories updated.");
+    }
+
+    private void unlockUserAccount() {
+        User user = promptForUser();
+        if (user == null) return;
+
+        if (!user.isLocked()) {
+            System.out.println("User '" + user.getUsername() + "' is not currently locked.");
+            return;
+        }
+
+        user.unlockAccount();
+        System.out.println("User '" + user.getUsername() + "' has been unlocked and their failed attempts have been reset.");
+    }
+
     /*--------------------------------------------------------
-                            Helper Methods
+                    Undo Recent Transaction Helpers
     ---------------------------------------------------------*/
 
+    private void processInputUndoTransaction(User selectedUser, BankAccount selectedAcct, Transaction tx) {
+        switch (tx.getType()) {
+            case "deposit": selectedAcct.undoTransaction(tx); break;
+            case "withdraw": selectedAcct.undoTransaction(tx); break;
+            case "fee": selectedAcct.undoTransaction(tx); break;
+            case "interest": selectedAcct.undoTransaction(tx); break;
+            case "transfer": System.out.println("Transfers between two accounts of the same user can not be undone as of now."); break;
+            case "received": System.out.println("Transfers between two accounts of the same user can not be undone as of now."); break;
+            case "inter-user-transfer": System.out.println("Please use the 'Void inter-user transfer' function in the admin menu."); break;
+            case "inter-user-receipt": System.out.println("Please use the 'Void inter-user transfer' function in the admin menu."); break;
+            case "void": System.out.println("Can not undo a voided transaction."); break;
+            case "undo": System.out.println("Can not undo an undone transaction."); break;
+        }
+    }
+
+    /*--------------------------------------------------------
+                    Void Transaction Helpers
+    ---------------------------------------------------------*/
+    private BankAccount[] resolveVoidAccounts(BankAccount selectedAcct, Transaction tx) {
+        if (tx.getType().equals("inter-user-transfer")) {
+            BankAccount recipientAcct = findRelatedAccount(tx);
+            if (recipientAcct == null) return null;
+            return new BankAccount[]{selectedAcct, recipientAcct};
+        }
+        BankAccount senderAcct = findRelatedAccount(tx);
+        if (senderAcct == null) return null;
+        return new BankAccount[]{senderAcct, selectedAcct};
+    }
+
+    private Transaction resolveSenderTx(Transaction tx, BankAccount senderAcct) {
+        if (tx.getType().equals("inter-user-transfer")) return tx;
+        for (Transaction t : senderAcct.getHistory()) {
+            if (t.getId() == tx.getLinkedId()) return t;
+        }
+        System.out.println("Linked sender transaction not found. Void cancelled.");
+        return null;
+    }
+
+    private Transaction pickTransfer(BankAccount account, String username) {
+        LinkedList<Transaction> interUserTxs = new LinkedList<>();
+        for (Transaction t : account.getHistory()) {
+            if (t.getType().equals("inter-user-transfer") || t.getType().equals("inter-user-receipt")) {
+                interUserTxs.add(t);
+            }
+        }
+        if (interUserTxs.isEmpty()) {
+            System.out.println("No inter-user transfers found on this account.");
+            return null;
+        }
+        System.out.println("\nInter-user transfers (" + username + " / " + account.getName() + "):");
+        for (int i = 0; i < interUserTxs.size(); i++) {
+            System.out.println((i + 1) + ". " + interUserTxs.get(i).getDescription());
+        }
+        int lineNum = getLineSelection(interUserTxs.size());
+        if (lineNum == 0) return null;
+        return interUserTxs.get(lineNum - 1);
+    }
+
+    private int getLineSelection(int max) {
+        while (true) {
+            System.out.print("Enter line number (0 to cancel): ");
+            while (!keyboardInput.hasNextInt()) {
+                System.out.println("Invalid input.");
+                keyboardInput.next();
+            }
+            int num = keyboardInput.nextInt();
+            keyboardInput.nextLine();
+            if (num == 0) {
+                System.out.println("Cancelled.");
+                return 0;
+            }
+            if (num >= 1 && num <= max) return num;
+            System.out.println("Invalid line number. Try again.");
+        }
+    }
+
+    private BankAccount findRelatedAccount(Transaction transactionToVoid) {
+        String recipientUsername = transactionToVoid.getRelatedUser();
+        String recipientAccountName = transactionToVoid.getRelatedAccount();
+        if (!userDatabase.containsKey(recipientUsername)) {
+            System.out.println("Recipient user no longer exists. Void cancelled.");
+            return null;
+        }
+        HashMap<String, BankAccount> accounts =
+                userDatabase.get(recipientUsername).getAllAccounts();
+        if (!accounts.containsKey(recipientAccountName)) {
+            System.out.println("Recipient account no longer exists. Void cancelled.");
+            return null;
+        }
+        return accounts.get(recipientAccountName);
+    }
+
+    private boolean canReverseTransfer(BankAccount recipientAcct, double amount) {
+        if (recipientAcct.getBalance() + 1e-9 < amount) {
+            System.out.println("Recipient balance is too low to reverse this transfer.");
+            return false;
+        }
+        return true;
+    }
+
+    /*--------------------------------------------------------
+                        General Helpers
+    ---------------------------------------------------------*/
     private double getPositiveDouble(String prompt) {
         double value;
         do {
@@ -128,12 +299,13 @@ public class AdminMenu {
                 keyboardInput.next();
             }
             value = keyboardInput.nextDouble();
-            keyboardInput.nextLine(); // clear buffer
-            
+            keyboardInput.nextLine();
+
             if(value <= 0) {
                 System.out.println("Amount must be positive. Try again.");
             }
         } while (value <= 0);
+
         return value;
     }
 
@@ -153,39 +325,24 @@ public class AdminMenu {
             }
 
         } while (!userDatabase.containsKey(username));
+
         return userDatabase.get(username);
     }
 
-    private BankAccount promptForAccountFromUser(User user, String actionName) {
+    private BankAccount promptForUserAccount(User user, String actionName) {
         HashMap<String, BankAccount> accounts = user.getAllAccounts();
         String accountName;
         do {
-            System.out.print("Enter account name to " + actionName + " (or type 'cancel' to cancel): ");
+            System.out.print("Enter account name to " + actionName + " (or type 'cancel'): ");
             accountName = keyboardInput.nextLine().trim();
-
             if(accountName.equalsIgnoreCase("cancel")) {
                 System.out.println(actionName + " cancelled.");
                 return null;
             }
-
             if(!accounts.containsKey(accountName)) {
                 System.out.println("Account not found. Try again.");
             }
-
         } while (!accounts.containsKey(accountName));
-        BankAccount account = accounts.get(accountName);
-        return account;
-    }
-
-    /*--------------------------------------------------------
-                            Main Loop
-    ---------------------------------------------------------*/
-    public void run() {
-        int selection = -1;
-        while(selection != EXIT_SELECTION) {
-            displayOptions();
-            selection = getUserSelection(MAX_SELECTION);
-            processInput(selection);
-        }
+        return accounts.get(accountName);
     }
 }

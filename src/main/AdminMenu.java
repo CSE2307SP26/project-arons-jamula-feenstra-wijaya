@@ -34,8 +34,9 @@ public class AdminMenu {
         System.out.println("1. Collect fees");
         System.out.println("2. Apply interest");
         System.out.println("3. List all accounts");
-        System.out.println("4. Void inter-user transfer");
-        System.out.println("5. Unlock user account");
+        System.out.println("4. Undo most recent transaction");
+        System.out.println("5. Void inter-user transfer");
+        System.out.println("6. Unlock user account");
         System.out.println("0. Exit the app");
     }
 
@@ -61,8 +62,9 @@ public class AdminMenu {
             case 1: collectFees(); break;
             case 2: applyInterest(); break;
             case 3: listAccounts(); break;
-            case 4: voidTransaction(); break;
-            case 5: unlockUserAccount(); break;
+            case 4: undoRecentTransaction(); break;
+            case 5: voidTransfer(); break;
+            case 6: unlockUserAccount(); break;
         }
     }
 
@@ -136,12 +138,26 @@ public class AdminMenu {
         }
     }
 
-    private void voidTransaction() {
+    private void undoRecentTransaction() {
         User selectedUser = promptForUser();
         if (selectedUser == null) return;
         BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
         if (selectedAcct == null) return;
-        Transaction transactionToVoid = pickTransaction(selectedAcct, selectedUser.getUsername());
+        if (selectedAcct.getHistory().isEmpty()) {
+            System.out.println("There are no recent transactions to undo.");
+            return;
+        }
+        Transaction recentTransaction = selectedAcct.getHistory().getLast();
+        processInputUndoTransaction(selectedUser, selectedAcct, recentTransaction);
+        return;
+    }
+
+    private void voidTransfer() {
+        User selectedUser = promptForUser();
+        if (selectedUser == null) return;
+        BankAccount selectedAcct = promptForUserAccount(selectedUser, "select account");
+        if (selectedAcct == null) return;
+        Transaction transactionToVoid = pickTransfer(selectedAcct, selectedUser.getUsername());
         if (transactionToVoid == null) return;
         BankAccount[] roles = resolveVoidAccounts(selectedAcct, transactionToVoid);
         if (roles == null) return;
@@ -168,6 +184,25 @@ public class AdminMenu {
     }
 
     /*--------------------------------------------------------
+                    Undo Recent Transaction Helpers
+    ---------------------------------------------------------*/
+
+    private void processInputUndoTransaction(User selectedUser, BankAccount selectedAcct, Transaction tx) {
+        switch (tx.getType()) {
+            case "deposit": selectedAcct.undoTransaction(tx); break;
+            case "withdraw": selectedAcct.undoTransaction(tx); break;
+            case "fee": selectedAcct.undoTransaction(tx); break;
+            case "interest": selectedAcct.undoTransaction(tx); break;
+            case "transfer": System.out.println("Transfers between two accounts of the same user can not be undone as of now."); break;
+            case "received": System.out.println("Transfers between two accounts of the same user can not be undone as of now."); break;
+            case "inter-user-transfer": System.out.println("Please use the 'Void inter-user transfer' function in the admin menu."); break;
+            case "inter-user-receipt": System.out.println("Please use the 'Void inter-user transfer' function in the admin menu."); break;
+            case "void": System.out.println("Can not undo a voided transaction."); break;
+            case "undo": System.out.println("Can not undo an undone transaction."); break;
+        }
+    }
+
+    /*--------------------------------------------------------
                     Void Transaction Helpers
     ---------------------------------------------------------*/
     private BankAccount[] resolveVoidAccounts(BankAccount selectedAcct, Transaction tx) {
@@ -190,7 +225,7 @@ public class AdminMenu {
         return null;
     }
 
-    private Transaction pickTransaction(BankAccount account, String username) {
+    private Transaction pickTransfer(BankAccount account, String username) {
         LinkedList<Transaction> interUserTxs = new LinkedList<>();
         for (Transaction t : account.getHistory()) {
             if (t.getType().equals("inter-user-transfer") || t.getType().equals("inter-user-receipt")) {

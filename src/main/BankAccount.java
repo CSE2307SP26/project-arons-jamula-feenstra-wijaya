@@ -12,6 +12,7 @@ public class BankAccount {
     private LinkedList<Transaction> transactionHistory;
     private String accountType;
     private double warningThreshold;
+    private boolean isFrozen;
 
     /*--------------------------------------------------------
                           Constructors
@@ -21,6 +22,7 @@ public class BankAccount {
         this.name = name;
         this.transactionHistory = new LinkedList<>();
         this.accountType = accountType;
+        this.isFrozen = false;
     }
 
     public BankAccount(String name) {
@@ -228,6 +230,15 @@ public class BankAccount {
         amount = roundToTwoDecimals(amount);
         this.warningThreshold = amount;
     }
+
+    public boolean getIsFrozen() {
+        return this.isFrozen;
+    }
+
+    public void setIsFrozen(boolean isFrozen) {
+        this.isFrozen = isFrozen;
+    }
+
 
     /*--------------------------------------------------------
                          Helper Methods

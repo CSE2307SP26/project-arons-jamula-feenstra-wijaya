@@ -1,6 +1,7 @@
 package main;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class BankApplication {
@@ -16,17 +17,16 @@ public class BankApplication {
     /*--------------------------------------------------------
                             Fields
     ---------------------------------------------------------*/
-    private HashMap<String, BankAccount> sharedAccountsMap;
     private HashMap<String, User> userDatabase;
+    private LinkedList<Audit> auditHistory;
     private Scanner keyboardInput;
 
     /*--------------------------------------------------------
                           Constructor
     ---------------------------------------------------------*/
     public BankApplication() {
-        this.sharedAccountsMap = new HashMap<>();
-        this.sharedAccountsMap.put("default", new BankAccount("default"));
         this.userDatabase = new HashMap<>();
+        this.auditHistory = new LinkedList<>();
         this.keyboardInput = new Scanner(System.in);
     }
 
@@ -35,10 +35,12 @@ public class BankApplication {
     ---------------------------------------------------------*/
     public void displayOptions() {
         System.out.println("\n=== Bank System ===");
+        System.out.println("--------------------------------------------------");
         System.out.println("1. User Login");
         System.out.println("2. Register User");
         System.out.println("3. Admin Login");
         System.out.println("0. Shut Down");
+        System.out.println("--------------------------------------------------");
     }
 
     public int getUserSelection(int max) {
@@ -146,7 +148,7 @@ public class BankApplication {
 
         if (username.equals(ADMIN_USERNAME) && password.equals(ADMIN_PASSWORD)) {
             System.out.println("\n--- Admin Login Successful ---");
-            new AdminMenu(userDatabase).run();
+            new AdminMenu(userDatabase, auditHistory).run();
         } else {
             System.out.println("Invalid admin credentials. Try again.");
         }

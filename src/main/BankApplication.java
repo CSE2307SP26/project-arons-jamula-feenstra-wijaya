@@ -111,6 +111,12 @@ public class BankApplication {
 
         if (user.login(password)) {
             System.out.println("\n--- Login Successful ---");
+            if (user.getCurrentPasswordIsRecoveryPassword()) {
+                System.out.println("Set your new password");
+                String newPassword = keyboardInput.next();
+                user.changePassword(newPassword);
+                user.setCurrentPasswordIsRecoveryPassword(false);
+            }
             new MainMenu(user, userDatabase).run();
         } else {
             handleFailedLogin(user);

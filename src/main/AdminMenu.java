@@ -10,7 +10,7 @@ public class AdminMenu {
                             Constants
     ---------------------------------------------------------*/
     private static final int EXIT_SELECTION = 0;
-    private static final int MAX_SELECTION = 7;
+    private static final int MAX_SELECTION = 8;
 
     /*--------------------------------------------------------
                             Fields
@@ -45,6 +45,7 @@ public class AdminMenu {
         System.out.println("5. Void inter-user transfer");
         System.out.println("6. Unlock user account");
         System.out.println("7. View audit history");
+        System.out.println("8. Provide user with recovery password");
         System.out.println("0. Exit to login menu");
         System.out.println("--------------------------------------------------");
     }
@@ -75,6 +76,7 @@ public class AdminMenu {
             case 5: voidTransfer(); break;
             case 6: unlockUserAccount(); break;
             case 7: viewAuditHistory(); break;
+            case 8: createRecoveryPassword(); break;
         }
     }
 
@@ -213,6 +215,20 @@ public class AdminMenu {
                     + " | Account: " + audit.getTargetAccount()
                     + " | " + audit.getDetails());
         }
+    }
+
+    private void createRecoveryPassword(){
+        User user = promptForUser();
+        if(user == null) return;
+        if (!user.isLocked()) {
+            System.out.println("Account is not locked");
+            return;
+        }
+        System.out.println("Set the recovery password:");
+        String recoveryPassword = keyboardInput.next();
+        user.changePassword(recoveryPassword);
+        user.setCurrentPasswordIsRecoveryPassword(true);
+        user.unlockAccount();
     }
 
     /*--------------------------------------------------------

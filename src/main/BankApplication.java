@@ -16,7 +16,7 @@ public class BankApplication {
     /*--------------------------------------------------------
                             Fields
     ---------------------------------------------------------*/
-    private HashMap<String, BankAccount> sharedAccountsMap;
+    // private HashMap<String, BankAccount> sharedAccountsMap;
     private HashMap<String, User> userDatabase;
     private Scanner keyboardInput;
 
@@ -24,8 +24,8 @@ public class BankApplication {
                           Constructor
     ---------------------------------------------------------*/
     public BankApplication() {
-        this.sharedAccountsMap = new HashMap<>();
-        this.sharedAccountsMap.put("default", new BankAccount("default"));
+        // this.sharedAccountsMap = new HashMap<>();
+        // this.sharedAccountsMap.put("default", new BankAccount("default"));
         this.userDatabase = new HashMap<>();
         this.keyboardInput = new Scanner(System.in);
     }

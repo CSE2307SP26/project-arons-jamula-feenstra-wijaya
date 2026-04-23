@@ -10,7 +10,7 @@ public class AdminMenu {
                             Constants
     ---------------------------------------------------------*/
     private static final int EXIT_SELECTION = 0;
-    private static final int MAX_SELECTION = 5;
+    private static final int MAX_SELECTION = 6;
 
     /*--------------------------------------------------------
                             Fields
@@ -37,7 +37,7 @@ public class AdminMenu {
         System.out.println("4. Undo most recent transaction");
         System.out.println("5. Void inter-user transfer");
         System.out.println("6. Unlock user account");
-        System.out.println("0. Exit the app");
+        System.out.println("0. Exit to login menu");
     }
 
     public int getUserSelection(int max) {

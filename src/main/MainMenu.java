@@ -12,7 +12,7 @@ public class MainMenu {
                             Constants
     ---------------------------------------------------------*/
     private static final int EXIT_SELECTION = 0;
-    private static final int MAX_SELECTION = 14;
+    private static final int MAX_SELECTION = 15;
 
     /*--------------------------------------------------------
                             Fields
@@ -55,6 +55,7 @@ public class MainMenu {
         System.out.println("12. Get summary of all accounts");
         System.out.println("13. Create low balance warning");
         System.out.println("14. Export transaction history to file");
+        System.out.println("15. Freeze or unfreeze account");
         System.out.println("0. Exit back to main menu");
         System.out.println("--------------------------------------------------");
     }
@@ -92,6 +93,7 @@ public class MainMenu {
             case 12: userAccountsSummary(); break;
             case 13: setWarningThreshold(); break;
             case 14: exportTransactionHistory(); break;
+            case 15: toggleFreeze(); break;
         }
     }
 
@@ -108,12 +110,20 @@ public class MainMenu {
                             Core Actions
     ---------------------------------------------------------*/
     private void deposit() {
+        if (userAccount.getIsFrozen() == true) {
+            System.out.println("Account is frozen.");
+            return;
+        }
         double amount = getPositiveDouble("Enter deposit amount: ");
         String note = addNote();
         userAccount.deposit(amount, note);
     }
 
     private void withdraw() {
+        if (userAccount.getIsFrozen() == true) {
+            System.out.println("Account is frozen.");
+            return;
+        }
         double amount = getPositiveDouble("Enter withdrawal amount: ");
         if(amount > userAccount.getBalance()) {
             System.out.println("Insufficient funds. Operation cancelled.");
@@ -135,6 +145,10 @@ public class MainMenu {
     }
 
     private void transfer() {
+        if (userAccount.getIsFrozen() == true) {
+            System.out.println("Account is frozen.");
+            return;
+        }
         if (!canTransfer()) return;
 
         String targetName = getExistingAccountName("Enter account to transfer to (or type 'cancel' to cancel): ");
@@ -156,6 +170,10 @@ public class MainMenu {
     }
 
     private void transferToAnotherUser() {
+        if (userAccount.getIsFrozen() == true) {
+            System.out.println("Account is frozen.");
+            return;
+        }
         if (!canTransferToAnotherUser()) return;
 
         User recipientUser = getRecipientUser();
@@ -236,6 +254,10 @@ public class MainMenu {
     }
 
     private void closeAccount() {
+        if (userAccount.getIsFrozen() == true) {
+            System.out.println("Account is frozen.");
+            return;
+        }
         if(confirmClose().equals("no")) {
             System.out.println("Account closure cancelled.");
             return;
@@ -281,6 +303,10 @@ public class MainMenu {
     }
 
     private void setWarningThreshold() {
+        if (userAccount.getIsFrozen() == true) {
+            System.out.println("Account is frozen.");
+            return;
+        }
         double amount = getPositiveDouble("Enter warning threshold: ");
         userAccount.setWarningThreshold(amount);
     }
@@ -302,6 +328,16 @@ public class MainMenu {
             System.out.println("Transaction history exported to: " + filename);
         } catch (IOException e) {
             System.out.println("Failed to export transaction history: " + e.getMessage());
+        }
+    }
+
+    private void toggleFreeze() {
+        if (userAccount.getIsFrozen() == true) {
+            userAccount.setIsFrozen(false);
+            System.out.println("Account has been frozen");
+        } else {
+            userAccount.setIsFrozen(true);
+            System.out.println("Account has been unfrozen");
         }
     }
 

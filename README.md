@@ -33,7 +33,7 @@
 ## User stories intended to complete in Iteration 3
 1. A user should be able to view timestamps for each transaction in their transaction history. (Andrew)
 2. An admin should be able to view an audit log for their past actions. (Cliff)
-3. An admin should be able to freeze an account. (Natalia)
+3. A user should be able to freeze their account. (Natalia)
 4. A user should receive a warning when their account balance falls below a minimum threshold. (Harrison)
 5. A user should be able to export their transaction history to a text file. (Andrew)
 6. A user should be charged a small fee when transferring funds between accounts. (Natalia)

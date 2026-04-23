@@ -17,6 +17,7 @@ public class User {
     private HashMap<String, BankAccount> accounts;
     private boolean isLocked;
     private int failedAttempts;
+    private boolean currentPasswordIsRecoveryPassword;
 
     /*--------------------------------------------------------
                           Constructor
@@ -27,6 +28,7 @@ public class User {
         this.accounts = new HashMap<>();
         this.isLocked = false;
         this.failedAttempts = 0;
+        this.currentPasswordIsRecoveryPassword = false;
     }
 
     /*--------------------------------------------------------
@@ -80,5 +82,13 @@ public class User {
 
     public HashMap<String, BankAccount> getAllAccounts() {
         return accounts;
+    }
+
+    public void setCurrentPasswordIsRecoveryPassword(boolean recovery) {
+        this.currentPasswordIsRecoveryPassword = recovery;
+    }
+
+    public boolean getCurrentPasswordIsRecoveryPassword() {
+        return this.currentPasswordIsRecoveryPassword;
     }
 }

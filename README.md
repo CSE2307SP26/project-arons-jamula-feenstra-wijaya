@@ -36,7 +36,7 @@
 3. A user should be able to freeze their account. (Natalia)
 4. A user should receive a warning when their account balance falls below a minimum threshold. (Harrison)
 5. A user should be able to export their transaction history to a text file. (Andrew)
-6. A user should be charged a small fee when transferring funds between accounts. (Natalia)
+6. An admin should be able to provide a user with a recovery password. (Natalia)
 7. A user should be able to add a note to each of their transactions. (Cliff)
 8. An admin should be able to undo an account's most recent transaction. (Harrison)
 

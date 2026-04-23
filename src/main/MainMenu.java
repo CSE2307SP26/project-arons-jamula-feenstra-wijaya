@@ -39,8 +39,8 @@ public class MainMenu {
     ---------------------------------------------------------*/
     public void displayOptions() {
         System.out.println("\nWelcome to the 2307 Bank App! (Logged in as: " + currentUser.getUsername() + ")");
-        System.out.println("You are currently on account: " + userAccount.getName() + "\n");
-
+        System.out.println("You are currently on account: " + userAccount.getName());
+        System.out.println("--------------------------------------------------");
         System.out.println("1. Make a deposit");
         System.out.println("2. Withdraw funds");
         System.out.println("3. Check account balance");
@@ -56,6 +56,7 @@ public class MainMenu {
         System.out.println("13. Create low balance warning");
         System.out.println("14. Export transaction history to file");
         System.out.println("0. Exit back to main menu");
+        System.out.println("--------------------------------------------------");
     }
 
     public int getUserSelection(int max) {

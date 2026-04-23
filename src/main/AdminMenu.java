@@ -10,19 +10,25 @@ public class AdminMenu {
                             Constants
     ---------------------------------------------------------*/
     private static final int EXIT_SELECTION = 0;
-    private static final int MAX_SELECTION = 6;
+    private static final int MAX_SELECTION = 7;
 
     /*--------------------------------------------------------
                             Fields
     ---------------------------------------------------------*/
     private Scanner keyboardInput;
     private HashMap<String, User> userDatabase;
+    private LinkedList<Audit> auditHistory;
 
     /*--------------------------------------------------------
                           Constructor
     ---------------------------------------------------------*/
     public AdminMenu(HashMap<String, User> userDatabase) {
+        this(userDatabase, new LinkedList<>());
+    }
+
+    public AdminMenu(HashMap<String, User> userDatabase, LinkedList<Audit> auditHistory) {
         this.userDatabase = userDatabase;
+        this.auditHistory = auditHistory;
         this.keyboardInput = new Scanner(System.in);
     }
 
@@ -31,13 +37,16 @@ public class AdminMenu {
     ---------------------------------------------------------*/
     public void displayOptions() {  
         System.out.println("\nWelcome to the 2307 Bank App! --- ADMIN ---");
+        System.out.println("--------------------------------------------------");
         System.out.println("1. Collect fees");
         System.out.println("2. Apply interest");
         System.out.println("3. List all accounts");
         System.out.println("4. Undo most recent transaction");
         System.out.println("5. Void inter-user transfer");
         System.out.println("6. Unlock user account");
+        System.out.println("7. View audit history");
         System.out.println("0. Exit to login menu");
+        System.out.println("--------------------------------------------------");
     }
 
     public int getUserSelection(int max) {
@@ -65,6 +74,7 @@ public class AdminMenu {
             case 4: undoRecentTransaction(); break;
             case 5: voidTransfer(); break;
             case 6: unlockUserAccount(); break;
+            case 7: viewAuditHistory(); break;
         }
     }
 
@@ -95,6 +105,8 @@ public class AdminMenu {
         }
 
         account.collectFees(amount);
+        auditHistory.add(new Audit("FEE_COLLECTED", user.getUsername(), account.getName(),
+                String.format("Collected $%.2f in fees. New balance: $%.2f", amount, account.getBalance())));
         System.out.println("Collected $" + amount + " in fees from " + account.getName() + ".");
     }
 
@@ -112,7 +124,8 @@ public class AdminMenu {
 
         double interestRate = getPositiveDouble("Enter interest rate to apply (in %): ");
         account.applyInterest(interestRate / 100);
-
+        auditHistory.add(new Audit("INTEREST_APPLIED", user.getUsername(), account.getName(),
+                String.format("Applied %.2f%% interest. New balance: $%.2f", interestRate, account.getBalance())));
         System.out.println("Applied " + interestRate + "% interest to " + account.getName() + ".");
     }
 
@@ -167,6 +180,9 @@ public class AdminMenu {
         String senderUsername = transactionToVoid.getType().equals("inter-user-transfer")
                 ? selectedUser.getUsername() : transactionToVoid.getRelatedUser();
         roles[0].reverseTransfer(roles[1], senderUsername, senderTx);
+        auditHistory.add(new Audit("TRANSFER_VOIDED", senderUsername, roles[0].getName(),
+                String.format("Voided $%.2f inter-user transfer to %s (%s). Balances restored.",
+                        senderTx.getAmount(), senderTx.getRelatedUser(), senderTx.getRelatedAccount())));
         System.out.println("Transfer voided; balances and histories updated.");
     }
 
@@ -180,7 +196,23 @@ public class AdminMenu {
         }
 
         user.unlockAccount();
+        auditHistory.add(new Audit("ACCOUNT_UNLOCKED", user.getUsername(), "N/A",
+                "Unlocked after too many failed login attempts. Failed attempt counter reset."));
         System.out.println("User '" + user.getUsername() + "' has been unlocked and their failed attempts have been reset.");
+    }
+
+    private void viewAuditHistory() {
+        if (auditHistory.isEmpty()) {
+            System.out.println("No audit history yet.");
+            return;
+        }
+        System.out.println("\n=== Admin Audit History ===");
+        for (Audit audit : auditHistory) {
+            System.out.println(audit.getId() + ". [" + audit.getTimestamp() + "] [" + audit.getAction() + "]"
+                    + " User: " + audit.getTargetUser()
+                    + " | Account: " + audit.getTargetAccount()
+                    + " | " + audit.getDetails());
+        }
     }
 
     /*--------------------------------------------------------
@@ -189,16 +221,29 @@ public class AdminMenu {
 
     private void processInputUndoTransaction(User selectedUser, BankAccount selectedAcct, Transaction tx) {
         switch (tx.getType()) {
-            case "deposit": selectedAcct.undoTransaction(tx); break;
-            case "withdraw": selectedAcct.undoTransaction(tx); break;
-            case "fee": selectedAcct.undoTransaction(tx); break;
-            case "interest": selectedAcct.undoTransaction(tx); break;
-            case "transfer": System.out.println("Transfers between two accounts of the same user can not be undone as of now."); break;
-            case "received": System.out.println("Transfers between two accounts of the same user can not be undone as of now."); break;
-            case "inter-user-transfer": System.out.println("Please use the 'Void inter-user transfer' function in the admin menu."); break;
-            case "inter-user-receipt": System.out.println("Please use the 'Void inter-user transfer' function in the admin menu."); break;
-            case "void": System.out.println("Can not undo a voided transaction."); break;
-            case "undo": System.out.println("Can not undo an undone transaction."); break;
+            case "deposit":
+            case "withdraw":
+            case "fee":
+            case "interest":
+                selectedAcct.undoTransaction(tx);
+                auditHistory.add(new Audit("TRANSACTION_UNDONE", selectedUser.getUsername(), selectedAcct.getName(),
+                        String.format("Undid %s of $%.2f. New balance: $%.2f",
+                                tx.getType(), tx.getAmount(), selectedAcct.getBalance())));
+                break;
+            case "transfer":
+            case "received":
+                System.out.println("Transfers between two accounts of the same user can not be undone as of now.");
+                break;
+            case "inter-user-transfer":
+            case "inter-user-receipt":
+                System.out.println("Please use the 'Void inter-user transfer' function in the admin menu.");
+                break;
+            case "void":
+                System.out.println("Can not undo a voided transaction.");
+                break;
+            case "undo":
+                System.out.println("Can not undo an undone transaction.");
+                break;
         }
     }
 

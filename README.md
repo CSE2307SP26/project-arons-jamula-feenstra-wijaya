@@ -30,7 +30,7 @@
 7. A user should be able to view a summary of all of their accounts. (Natalia)
 8. A user should be able to filter their transaction history. (Harrison)
 
-## User stories intended to complete in Iteration 3
+## User stories completed in Iteration 3
 1. A user should be able to view timestamps for each transaction in their transaction history. (Andrew)
 2. An admin should be able to view an audit log for their past actions. (Cliff)
 3. A user should be able to freeze their account. (Natalia)

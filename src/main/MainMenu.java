@@ -110,20 +110,14 @@ public class MainMenu {
                             Core Actions
     ---------------------------------------------------------*/
     private void deposit() {
-        if (userAccount.getIsFrozen() == true) {
-            System.out.println("Account is frozen.");
-            return;
-        }
+        if(checkIsFrozen()) return;
         double amount = getPositiveDouble("Enter deposit amount: ");
         String note = addNote();
         userAccount.deposit(amount, note);
     }
 
     private void withdraw() {
-        if (userAccount.getIsFrozen() == true) {
-            System.out.println("Account is frozen.");
-            return;
-        }
+        if(checkIsFrozen()) return;
         double amount = getPositiveDouble("Enter withdrawal amount: ");
         if(amount > userAccount.getBalance()) {
             System.out.println("Insufficient funds. Operation cancelled.");
@@ -145,10 +139,7 @@ public class MainMenu {
     }
 
     private void transfer() {
-        if (userAccount.getIsFrozen() == true) {
-            System.out.println("Account is frozen.");
-            return;
-        }
+        if(checkIsFrozen()) return;
         if (!canTransfer()) return;
 
         String targetName = getExistingAccountName("Enter account to transfer to (or type 'cancel' to cancel): ");
@@ -170,10 +161,7 @@ public class MainMenu {
     }
 
     private void transferToAnotherUser() {
-        if (userAccount.getIsFrozen() == true) {
-            System.out.println("Account is frozen.");
-            return;
-        }
+        if(checkIsFrozen()) return;
         if (!canTransferToAnotherUser()) return;
 
         User recipientUser = getRecipientUser();
@@ -254,10 +242,7 @@ public class MainMenu {
     }
 
     private void closeAccount() {
-        if (userAccount.getIsFrozen() == true) {
-            System.out.println("Account is frozen.");
-            return;
-        }
+        if(checkIsFrozen()) return;
         if(confirmClose().equals("no")) {
             System.out.println("Account closure cancelled.");
             return;
@@ -303,10 +288,7 @@ public class MainMenu {
     }
 
     private void setWarningThreshold() {
-        if (userAccount.getIsFrozen() == true) {
-            System.out.println("Account is frozen.");
-            return;
-        }
+        if(checkIsFrozen()) return;
         double amount = getPositiveDouble("Enter warning threshold: ");
         userAccount.setWarningThreshold(amount);
     }
@@ -332,12 +314,12 @@ public class MainMenu {
     }
 
     private void toggleFreeze() {
-        if (userAccount.getIsFrozen() == true) {
+        if (userAccount.getIsFrozen()) {
             userAccount.setIsFrozen(false);
-            System.out.println("Account has been frozen");
+            System.out.println("Account has been unfrozen.");
         } else {
             userAccount.setIsFrozen(true);
-            System.out.println("Account has been unfrozen");
+            System.out.println("Account has been frozen.");
         }
     }
 
@@ -383,6 +365,15 @@ public class MainMenu {
     /*--------------------------------------------------------
                     General Helper Methods
     ---------------------------------------------------------*/
+
+    private boolean checkIsFrozen() {
+        if (userAccount.getIsFrozen()) {
+            System.out.println("Account is frozen. Operation cancelled.");
+            return true;
+        }
+        return false;
+    }
+
     private String formatTransaction(int index, Transaction t) {
         String line = (index + 1) + ". [" + t.getTimestamp() + "] " + t.getDescription();
         if (t.getNote() != null && !t.getNote().isEmpty()) {

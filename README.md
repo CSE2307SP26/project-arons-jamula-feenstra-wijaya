@@ -30,7 +30,7 @@
 7. A user should be able to view a summary of all of their accounts. (Natalia)
 8. A user should be able to filter their transaction history. (Harrison)
 
-## User stories intended to complete in Iteration 3
+## User stories completed in Iteration 3
 1. A user should be able to view timestamps for each transaction in their transaction history. (Andrew)
 2. An admin should be able to view an audit log for their past actions. (Cliff)
 3. A user should be able to freeze their account. (Natalia)
@@ -41,9 +41,9 @@
 8. An admin should be able to undo an account's most recent transaction. (Harrison)
 
 ## Is there anything that you implemented but doesn't currently work?
-N/A
+All user stories should work as intended!
 
 ## What commands are needed to compile and run your code from the command line?
 1. cd into project-arons-jamula-feenstra-wijaya
 2. ./runApp.sh
-Note: Admin Username is admin, Admin password is 123
+3. Note: Admin Username is admin, Admin password is 123
